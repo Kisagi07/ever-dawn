@@ -1,11 +1,14 @@
 "use client";
 import { useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 import Button from "../components/Button";
 import FloatingText from "../components/FloatingText";
 import Surface from "../components/Surface";
 
 const Page = () => {
-  const [generatedSessions, setGeneratedSessions] = useState<number[]>([]);
+  const [generatedSessions, setGeneratedSessions] = useState<
+    { focus: number; break: number; id: string }[]
+  >([]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -35,10 +38,11 @@ const Page = () => {
     // push break time into each session chunk
     const sessionWithBreaks = sessionChunks
       .map((chunk) => {
-        return [chunk, breakTime];
+        return { focus: chunk, break: breakTime, id: uuidv4() };
       })
       .flat();
 
+    console.log("sessionWithBreaks", sessionWithBreaks);
     setGeneratedSessions(sessionWithBreaks);
   };
 
@@ -73,9 +77,11 @@ const Page = () => {
           </h3>
           <ul className="flex flex-wrap gap-2">
             {generatedSessions.map((session, index) => (
-              <li key={index} className="text-lg font-medium">
-                {">"} {session} Minutes
-              </li>
+              <Session
+                break={session.break}
+                focus={session.focus}
+                key={session.id}
+              />
             ))}
           </ul>
         </div>
@@ -84,3 +90,22 @@ const Page = () => {
   );
 };
 export default Page;
+
+function Session({
+  focus,
+  break: breakTime,
+}: {
+  focus: number;
+  break: number;
+}) {
+  return (
+    <>
+      <li className=" font-medium bg-orange-500 text-white p-2 rounded-md">
+        {focus}
+      </li>
+      <li className=" font-medium bg-emerald-500 text-white p-2 rounded-md">
+        {breakTime}
+      </li>
+    </>
+  );
+}
