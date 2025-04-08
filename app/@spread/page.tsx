@@ -1,9 +1,11 @@
 "use client";
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import Button from "../components/Button";
-import FloatingText from "../components/FloatingText";
-import Surface from "../components/Surface";
+import Button from "@/app/components/Button";
+import FloatingText from "@/app/components/FloatingText";
+import Surface from "@/app/components/Surface";
+import TimeInput from "@/app/components/TimeInput";
+import Time from "@/app/classes/Time";
 
 const Page = () => {
   const [generatedSessions, setGeneratedSessions] = useState<
@@ -17,12 +19,13 @@ const Page = () => {
     const learnPercentage = +(formData.get("learnPercentage") as string)
       .replace("%", "")
       .trim();
-    const totalFreeTime = +(formData.get("totalFreeTime") as string)
-      .replace("Minutes", "")
-      .trim();
     const maxFocus = +(formData.get("maxFocus") as string)
       .replace("Minutes", "")
       .trim();
+    const hourStart = new Time(formData.get("hourStart") as string);
+    const hourEnd = new Time(formData.get("hourEnd") as string);
+    const difference = hourStart.getDifference(hourEnd);
+    const totalFreeTime = difference.hours * 60 + difference.minutes;
 
     const totalLearnTime = (totalFreeTime * learnPercentage) / 100;
     const totalSessions = Math.floor(totalLearnTime / maxFocus);
@@ -36,32 +39,40 @@ const Page = () => {
     const remainingFreeTime = totalFreeTime - totalLearnTime;
     const breakTime = remainingFreeTime / sessionChunks.length;
     // push break time into each session chunk
+    let breakCarry = 0;
     const sessionWithBreaks = sessionChunks
       .map((chunk) => {
-        return { focus: chunk, break: breakTime, id: uuidv4() };
+        const decimal = breakTime - Math.floor(breakTime);
+        breakCarry += decimal;
+        let bonus = Math.floor(breakCarry / 1);
+        if (bonus > 0) {
+          breakCarry = breakCarry % 1;
+        }
+        return {
+          focus: chunk,
+          break: Math.floor(breakTime) + bonus,
+          id: uuidv4(),
+        };
       })
       .flat();
-
-    console.log("sessionWithBreaks", sessionWithBreaks);
     setGeneratedSessions(sessionWithBreaks);
   };
 
   return (
     <Surface level={1}>
       <h2 className="font-cormorant font-semibold text-3xl">Spread Learning</h2>
-      <form className="grid grid-cols-3 gap-4" onSubmit={handleSubmit}>
+      <form
+        className="grid grid-cols-4 gap-4 bg-inherit"
+        onSubmit={handleSubmit}
+      >
         <FloatingText
           name="learnPercentage"
           label="Learn Percentage"
           defaultValue={"20"}
           endOfValue="%"
         />
-        <FloatingText
-          name="totalFreeTime"
-          label="Total Free Time"
-          defaultValue={"300"}
-          endOfValue="Minutes"
-        />
+        <TimeInput label="Jam Mulai" name="hourStart" />
+        <TimeInput label="Jam Selesai" name="hourEnd" />
         <FloatingText
           name="maxFocus"
           label="Max Focus"

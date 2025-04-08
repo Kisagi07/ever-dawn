@@ -53,6 +53,7 @@
 
   --font-inter: var(--font-inter);
   --font-cormorant: var(--font-cormorant);
+  --font-jetbrains-mono: var(--font-jetbrains-mono);
 
   --animate-ripple: ripple 500ms ease-in-out forwards;
 
