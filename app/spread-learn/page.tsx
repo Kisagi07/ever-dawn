@@ -3,9 +3,9 @@ import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import Button from "@/app/components/Button";
 import FloatingText from "@/app/components/FloatingText";
-import Surface from "@/app/components/Surface";
 import TimeInput from "@/app/components/TimeInput";
 import Time from "@/app/classes/Time";
+import { toast } from "../components/Toast";
 
 const Page = () => {
   const [generatedSessions, setGeneratedSessions] = useState<
@@ -14,6 +14,8 @@ const Page = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    toast("calculating pomodoro schedule", "blue");
+    return;
     // Handle form submission logic here
     const formData = new FormData(e.currentTarget);
     const learnPercentage = +(formData.get("learnPercentage") as string)
