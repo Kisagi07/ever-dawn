@@ -86,51 +86,53 @@ const Page = () => {
   };
 
   return (
-    <div className="bg-white space-y-8 p-4 py-8 max-w-7xl mx-auto">
-      <div className="flex items-center gap-4 font-medium">
-        <Link href="/" className="text-neutral-500">
-          Home
-        </Link>
-        <ChevronRightIcon className="size-4" />
-        <Link href="#">Rythm Rise</Link>
-      </div>
-      <h2 className="font-cormorant font-semibold text-3xl">Rythm Rise</h2>
-      <form
-        className="grid gap-4 bg-inherit sm:grid-cols-2 md:grid-cols-4"
-        onSubmit={handleSubmit}
-      >
-        <FloatingText
-          name="learnPercentage"
-          label="Learn Percentage"
-          defaultValue={"30"}
-          endOfValue="%"
-        />
-        <TimeInput label="Jam Mulai" name="hourStart" />
-        <TimeInput label="Jam Selesai" name="hourEnd" />
-        <FloatingText
-          name="maxFocus"
-          label="Max Focus"
-          defaultValue={"15"}
-          endOfValue="Minutes"
-        />
-        <Button type="submit">Calculate</Button>
-      </form>
-      {generatedSessions.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <h3 className="font-cormorant font-medium text-2xl">
-            Generated Sessions
-          </h3>
-          <ul className="flex flex-wrap gap-2">
-            {generatedSessions.map((session, index) => (
-              <Session
-                break={session.break}
-                focus={session.focus}
-                key={session.id}
-              />
-            ))}
-          </ul>
+    <div className="py-8">
+      <div className="bg-neutral-100  space-y-8 p-4 py-8 max-w-7xl mx-auto">
+        <div className="flex items-center gap-4 font-medium">
+          <Link href="/" className="text-neutral-500">
+            Home
+          </Link>
+          <ChevronRightIcon className="size-4" />
+          <Link href="#">Rythm Rise</Link>
         </div>
-      )}
+        <h2 className="font-cormorant font-semibold text-3xl">Rythm Rise</h2>
+        <form
+          className="grid gap-4 bg-inherit sm:grid-cols-2 md:grid-cols-4"
+          onSubmit={handleSubmit}
+        >
+          <FloatingText
+            name="learnPercentage"
+            label="Learn Percentage"
+            defaultValue={"30"}
+            endOfValue="%"
+          />
+          <TimeInput label="Jam Mulai" name="hourStart" />
+          <TimeInput label="Jam Selesai" name="hourEnd" />
+          <FloatingText
+            name="maxFocus"
+            label="Max Focus"
+            defaultValue={"15"}
+            endOfValue="Minutes"
+          />
+          <Button type="submit">Calculate</Button>
+        </form>
+        {generatedSessions.length > 0 && (
+          <div className="flex flex-col gap-2">
+            <h3 className="font-cormorant font-medium text-2xl">
+              Generated Sessions
+            </h3>
+            <ul className="flex flex-wrap gap-2">
+              {generatedSessions.map((session, index) => (
+                <Session
+                  break={session.break}
+                  focus={session.focus}
+                  key={session.id}
+                />
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
