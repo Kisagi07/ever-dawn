@@ -130,7 +130,11 @@ export default function TimeInput({
   }, [focusOn]);
 
   return (
-    <div className="font-jetbrains-mono border border-outline rounded flex items-center p-2 select-none relative bg-inherit">
+    <div
+      className={`font-jetbrains-mono border  rounded flex transition-all items-center p-2 select-none relative bg-inherit ${
+        focusOn ? "ring-1 ring-primary border-primary" : "border-accent"
+      }`}
+    >
       <input
         name={name}
         type="hidden"
@@ -171,7 +175,11 @@ export default function TimeInput({
       >
         {values.seconds}
       </span>
-      <label className="font-inter text-sm font-medium absolute top-0 -translate-y-[10px] bg-inherit px-1">
+      <label
+        className={`font-inter text-sm font-medium absolute top-0 -translate-y-[10px] bg-inherit transition-colors px-1 ${
+          focusOn && "text-primary"
+        }`}
+      >
         {label}
       </label>
     </div>

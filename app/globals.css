@@ -1,70 +1,24 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: rgb(152 68 70);
-  --color-surface-tint: rgb(152 68 70);
-  --color-on-primary: rgb(255 255 255);
-  --color-primary-container: rgb(242 140 140);
-  --color-on-primary-container: rgb(110 36 40);
-  --color-secondary: rgb(67 95 140);
-  --color-on-secondary: rgb(255 255 255);
-  --color-secondary-container: rgb(175 203 255);
-  --color-on-secondary-container: rgb(57 85 130);
-  --color-tertiary: rgb(108 94 2);
-  --color-on-tertiary: rgb(255 255 255);
-  --color-tertiary-container: rgb(246 226 127);
-  --color-on-tertiary-container: rgb(114 100 9);
-  --color-error: rgb(175 16 26);
-  --color-on-error: rgb(255 255 255);
-  --color-error-container: rgb(211 47 47);
-  --color-on-error-container: rgb(255 242 240);
-  --color-background: rgb(255 248 247);
-  --color-on-background: rgb(34 26 25);
-  --color-surface: rgb(253 248 248);
-  --color-on-surface: rgb(28 27 27);
-  --color-surface-variant: rgb(234 225 215);
-  --color-on-surface-variant: rgb(75 70 63);
-  --color-outline: rgb(125 118 110);
-  --color-outline-variant: rgb(206 197 188);
-  --color-shadow: rgb(0 0 0);
-  --color-scrim: rgb(0 0 0);
-  --color-inverse-surface: rgb(49 48 48);
-  --color-inverse-on-surface: rgb(244 240 239);
-  --color-inverse-primary: rgb(255 179 178);
-  --color-primary-fixed: rgb(255 218 217);
-  --color-on-primary-fixed: rgb(63 2 9);
-  --color-primary-fixed-dim: rgb(255 179 178);
-  --color-on-primary-fixed-variant: rgb(122 45 48);
-  --color-secondary-fixed: rgb(214 227 255);
-  --color-on-secondary-fixed: rgb(0 27 61);
-  --color-secondary-fixed-dim: rgb(171 199 251);
-  --color-on-secondary-fixed-variant: rgb(42 71 115);
-  --color-tertiary-fixed: rgb(247 227 128);
-  --color-on-tertiary-fixed: rgb(33 27 0);
-  --color-tertiary-fixed-dim: rgb(218 199 103);
-  --color-on-tertiary-fixed-variant: rgb(82 71 0);
-  --color-surface-dim: rgb(221 217 216);
-  --color-surface-bright: rgb(253 248 248);
-  --color-surface-container-lowest: rgb(255 255 255);
-  --color-surface-container-low: rgb(247 243 242);
-  --color-surface-container: rgb(241 237 236);
-  --color-surface-container-high: rgb(235 231 231);
-  --color-surface-container-highest: rgb(229 226 225);
+  /* CSS HEX */
+  --color-primary: #e7000bff;
+  --color-secondary: #067bc2ff;
+  --color-accent: #071108ff;
+  --color-neutral-light: #ffffffff;
+  --color-neutral-dark: #cdd7d6ff;
+
+  --color-surface-0: #ffffff;
+  --color-surface-1: #fafafa;
+  --color-surface-2: #f5f5f5;
+  --color-surface-3: #eeeeee;
+  --color-surface-4: #e0e0e0;
+  --color-surface-5: #d6d6d6;
 
   --font-inter: var(--font-inter);
-  --font-cormorant: var(--font-cormorant);
-  --font-jetbrains-mono: var(--font-jetbrains-mono);
-
-  --animate-ripple: ripple 500ms ease-in-out forwards;
-
-  @keyframes ripple {
-    0% {
-      transform: scale(0);
-      opacity: 1;
-    }
-    100% {
-      transform: scale(4); /* Adjust scale as needed */
-      opacity: 0;
-    }
+}
+@layer components {
+  .interactable {
+    @apply relative bg-neutral-200 after:content-[""] after:absolute after:top-0 after:left-0 after:w-full after:h-full after:border-inherit after:bg-neutral-950 after:opacity-0 hover:after:opacity-[0.08] focus:after:opacity-[0.1] active:after:opacity-[0.16] after:transition-opacity;
   }
 }

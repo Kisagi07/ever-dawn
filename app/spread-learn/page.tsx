@@ -59,16 +59,13 @@ const Page = () => {
   };
 
   return (
-    <Surface level={1}>
+    <div className="bg-white rounded shadow space-y-8 p-4 py-8">
       <h2 className="font-cormorant font-semibold text-3xl">Spread Learning</h2>
-      <form
-        className="grid grid-cols-4 gap-4 bg-inherit"
-        onSubmit={handleSubmit}
-      >
+      <form className="grid gap-4 bg-inherit" onSubmit={handleSubmit}>
         <FloatingText
           name="learnPercentage"
           label="Learn Percentage"
-          defaultValue={"20"}
+          defaultValue={"30"}
           endOfValue="%"
         />
         <TimeInput label="Jam Mulai" name="hourStart" />
@@ -97,7 +94,7 @@ const Page = () => {
           </ul>
         </div>
       )}
-    </Surface>
+    </div>
   );
 };
 export default Page;

@@ -4,9 +4,11 @@ import { ReactNode } from "react";
 const Surface = ({
   level = 0,
   children,
+  className = "",
 }: {
   level: 0 | 1 | 2 | 3 | 4;
   children: ReactNode;
+  className?: string;
 }) => {
   const getSurfaceColor = () => {
     switch (level) {
@@ -27,7 +29,7 @@ const Surface = ({
 
   return (
     <section
-      className={`container text-on-surface mx-auto rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow duration-300" ${getSurfaceColor()} space-y-8`}
+      className={`text-on-surface rounded-2xl p-4 shadow  ${getSurfaceColor()} space-y-8 ${className}`}
     >
       {children}
     </section>

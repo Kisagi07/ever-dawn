@@ -32,7 +32,7 @@ const FloatingText = ({
   };
 
   return (
-    <div className="relative">
+    <div className="relative bg-inherit">
       <input
         id={name}
         name={name}
@@ -47,7 +47,7 @@ const FloatingText = ({
       <label
         onClick={() => inputRef.current?.focus()}
         htmlFor=""
-        className={` font-inter absolute left-4 top-1/2 -translate-y-1/2 block bg-surface-container-low font-medium px-1 text-sm peer-focus:top-0 peer-focus:-translate-y-[10px] transition-all peer-focus:left-2 peer-focus:text-primary ${
+        className={` font-inter absolute left-4 top-1/2 -translate-y-1/2 block bg-inherit font-medium px-1 text-sm peer-focus:top-0 peer-focus:-translate-y-[10px] transition-all peer-focus:left-2 peer-focus:text-primary ${
           hasValue ? " !top-0 !-translate-y-[10px] !left-2" : ""
         }`}
       >

@@ -32,19 +32,16 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-  spread,
 }: Readonly<{
   children: React.ReactNode;
-  spread: React.ReactNode;
 }>) {
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${cormorant.variable} ${jetBrainsMono.variable} antialiased`}
+        className={`${inter.variable} ${jetBrainsMono.variable} antialiased`}
       >
-        <main className="bg-surface w-full min-h-screen p-8 space-y-4">
+        <main className="white w-full min-h-screen bg-white font-inter">
           {children}
-          {spread}
         </main>
       </body>
     </html>
