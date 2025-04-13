@@ -59,7 +59,7 @@ export function ToastProvider({ children }: ToastProvider) {
           className={`ring fixed right-5 transition-[bottom] shadow-floating  p-4 rounded-lg max-w-80 w-full flex items-center gap-4 animate-wiggle ${toast.classNames}`}
         >
           <InformationCircleIcon className="h-6 w-6" />
-          <span className="text-sm">{toast.message}</span>
+          <span className="text-sm font-medium">{toast.message}</span>
         </div>
       ))}
     </ToastContext.Provider>

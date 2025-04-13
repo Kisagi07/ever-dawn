@@ -22,6 +22,18 @@ class Time {
    */
   constructor(time: string) {
     const [hours, minutes, seconds] = time.split(":").map(Number);
+    // validate if each time are valid value
+    if (isNaN(hours)) {
+      throw new Error("Hours result in NaN after converting");
+    }
+    if (isNaN(minutes)) {
+      throw new Error("Minutes result in NaN after converting");
+    }
+    if (isNaN(seconds)) {
+      throw new Error("Seconds result in NaN after converting");
+    }
+
+    // Assign converted values to property
     this.hours = hours;
     this.minutes = minutes;
     this.seconds = seconds;

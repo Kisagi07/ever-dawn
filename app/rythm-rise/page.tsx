@@ -6,6 +6,8 @@ import FloatingText from "@/app/components/FloatingText";
 import TimeInput from "@/app/components/TimeInput";
 import Time from "@/app/classes/Time";
 import { toast } from "../components/Toast";
+import Link from "next/link";
+import { ChevronRightIcon } from "@heroicons/react/24/outline";
 
 const Page = () => {
   const [generatedSessions, setGeneratedSessions] = useState<
@@ -14,8 +16,6 @@ const Page = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    toast("calculating pomodoro schedule", "blue");
-    return;
     // Handle form submission logic here
     const formData = new FormData(e.currentTarget);
     const learnPercentage = +(formData.get("learnPercentage") as string)
@@ -24,11 +24,37 @@ const Page = () => {
     const maxFocus = +(formData.get("maxFocus") as string)
       .replace("Minutes", "")
       .trim();
-    const hourStart = new Time(formData.get("hourStart") as string);
-    const hourEnd = new Time(formData.get("hourEnd") as string);
+    let hourStart: Time;
+    let hourEnd: Time;
+
+    // #region validate valid values
+    try {
+      hourStart = new Time(formData.get("hourStart") as string);
+    } catch (error) {
+      toast("Invalid hour start values", "red");
+      return;
+    }
+
+    try {
+      hourEnd = new Time(formData.get("hourEnd") as string);
+    } catch (error) {
+      toast("Invalid hour end values", "red");
+      return;
+    }
+
+    if (!learnPercentage) {
+      toast("Learn Percentage Needed", "red");
+    }
+
+    if (!maxFocus) {
+      toast("Max Focus Needed", "red");
+    }
+
+    // #endregion
+
+    // Calculate pomodoro schedule
     const difference = hourStart.getDifference(hourEnd);
     const totalFreeTime = difference.hours * 60 + difference.minutes;
-
     const totalLearnTime = (totalFreeTime * learnPercentage) / 100;
     const totalSessions = Math.floor(totalLearnTime / maxFocus);
     const remainingTime = totalLearnTime % maxFocus;
@@ -40,7 +66,6 @@ const Page = () => {
     }
     const remainingFreeTime = totalFreeTime - totalLearnTime;
     const breakTime = remainingFreeTime / sessionChunks.length;
-    // push break time into each session chunk
     let breakCarry = 0;
     const sessionWithBreaks = sessionChunks
       .map((chunk) => {
@@ -61,9 +86,19 @@ const Page = () => {
   };
 
   return (
-    <div className="bg-white rounded shadow space-y-8 p-4 py-8">
-      <h2 className="font-cormorant font-semibold text-3xl">Spread Learning</h2>
-      <form className="grid gap-4 bg-inherit" onSubmit={handleSubmit}>
+    <div className="bg-white space-y-8 p-4 py-8 max-w-7xl mx-auto">
+      <div className="flex items-center gap-4 font-medium">
+        <Link href="/" className="text-neutral-500">
+          Home
+        </Link>
+        <ChevronRightIcon className="size-4" />
+        <Link href="#">Rythm Rise</Link>
+      </div>
+      <h2 className="font-cormorant font-semibold text-3xl">Rythm Rise</h2>
+      <form
+        className="grid gap-4 bg-inherit sm:grid-cols-2 md:grid-cols-4"
+        onSubmit={handleSubmit}
+      >
         <FloatingText
           name="learnPercentage"
           label="Learn Percentage"
@@ -82,7 +117,7 @@ const Page = () => {
       </form>
       {generatedSessions.length > 0 && (
         <div className="flex flex-col gap-2">
-          <h3 className="font-cormorant font-bold text-2xl">
+          <h3 className="font-cormorant font-medium text-2xl">
             Generated Sessions
           </h3>
           <ul className="flex flex-wrap gap-2">
@@ -110,10 +145,10 @@ function Session({
 }) {
   return (
     <>
-      <li className=" font-medium bg-orange-500 text-white p-2 rounded-md">
+      <li className=" font-medium bg-blue-100 text-blue-600 p-2 rounded-md">
         {focus}
       </li>
-      <li className=" font-medium bg-emerald-500 text-white p-2 rounded-md">
+      <li className=" font-medium bg-emerald-100 text-emerald-600 p-2 rounded-md">
         {breakTime}
       </li>
     </>

@@ -32,11 +32,11 @@ const Home = () => {
           <h2 className="font-semibold text-2xl">Tools</h2>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4 xl:grid-cols-6">
             <Link
-              href="/spread-learn"
+              href="/rythm-rise"
               className="interactable bg-neutral-100 rounded flex flex-col items-center p-4 space-y-4 shadow"
             >
               <Image src={SpreadLearn} alt="" className="size-20" />
-              <h3 className="text-center font-medium">Spread Learn</h3>
+              <h3 className="text-center font-medium">Rythm Rise</h3>
             </Link>
           </div>
         </section>
