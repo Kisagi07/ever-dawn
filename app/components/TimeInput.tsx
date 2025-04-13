@@ -35,10 +35,22 @@ export default function TimeInput({
       };
 
       const handleClick = (e: MouseEvent) => {
-        const target = e.target as HTMLElement;
-        if (target.tagName !== "SPAN") {
+        if (
+          e.target !== hourRef.current &&
+          e.target !== minuteRef.current &&
+          e.target !== secondRef.current
+        ) {
           setFocusOn(undefined);
         }
+        // if (e.target === hourRef.current) {
+        //   // console.log("Hour element clicked");
+        // } else if (e.target === minuteRef.current) {
+        //   // console.log("Minute element clicked");
+        // } else if (e.target === secondRef.current) {
+        //   // console.log("Second element clicked");
+        // } else {
+        //   setFocusOn(undefined);
+        // }
       };
       const determineHourValue = (value: string, prevValue: string) => {
         if (prevValue === "--") {
