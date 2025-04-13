@@ -35,7 +35,7 @@ const Home = () => {
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4 xl:grid-cols-6">
             <Link
               href="/rythm-rise"
-              className="interactable  rounded flex flex-col items-center p-4 space-y-4 shadow"
+              className="interactable bg-white rounded-lg flex flex-col items-center p-4 space-y-4 shadow"
             >
               <Image src={SpreadLearn} alt="" className="size-20" />
               <h3 className="text-center font-medium">Rythm Rise</h3>

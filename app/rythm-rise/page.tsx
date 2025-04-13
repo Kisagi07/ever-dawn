@@ -87,7 +87,7 @@ const Page = () => {
 
   return (
     <div className="py-8">
-      <div className="bg-neutral-100  space-y-8 p-4 py-8 max-w-7xl mx-auto">
+      <div className="bg-white rounded-lg space-y-8 p-4 py-8 md:p-8 max-w-7xl mx-auto">
         <div className="flex items-center gap-4 font-medium">
           <Link href="/" className="text-neutral-500">
             Home
