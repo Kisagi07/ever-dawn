@@ -133,58 +133,60 @@ export default function TimeInput({
   }, [focusOn]);
 
   return (
-    <div
-      className={`font-jetbrains-mono border mt-3 rounded flex transition-all items-center p-2 select-none relative bg-inherit ${
-        focusOn ? "ring-1 ring-primary border-primary" : "border-accent"
-      }`}
-    >
-      <input
-        name={name}
-        type="hidden"
-        value={`${values.hours}:${values.minutes}:${values.seconds}`}
-      />
-      <span
-        ref={hourRef}
-        tabIndex={0}
-        onClick={(e) => {
-          e.currentTarget.focus();
-          setFocusOn("hours");
-        }}
-        className="focus:bg-gray-500/20 px-1 rounded-lg focus:outline-none"
-      >
-        {values.hours}
-      </span>
-      <span>:</span>
-      <span
-        ref={minuteRef}
-        tabIndex={0}
-        onClick={(e) => {
-          e.currentTarget.focus();
-          setFocusOn("minutes");
-        }}
-        className="focus:bg-gray-500/20 px-1 rounded-lg focus:outline-none"
-      >
-        {values.minutes}
-      </span>
-      <span>:</span>
-      <span
-        ref={secondRef}
-        tabIndex={0}
-        onClick={(e) => {
-          e.currentTarget.focus();
-          setFocusOn("seconds");
-        }}
-        className="focus:bg-gray-500/20 px-1 rounded-lg focus:outline-none"
-      >
-        {values.seconds}
-      </span>
-      <label
-        className={`font-inter text-sm font-medium absolute top-0 -translate-y-[10px] bg-inherit transition-colors px-1 ${
-          focusOn && "text-primary"
+    <div className="pt-3">
+      <div
+        className={`font-jetbrains-mono border rounded flex transition-all items-center p-2 select-none relative bg-inherit ${
+          focusOn ? "ring-1 ring-primary border-primary" : "border-accent"
         }`}
       >
-        {label}
-      </label>
+        <input
+          name={name}
+          type="hidden"
+          value={`${values.hours}:${values.minutes}:${values.seconds}`}
+        />
+        <span
+          ref={hourRef}
+          tabIndex={0}
+          onClick={(e) => {
+            e.currentTarget.focus();
+            setFocusOn("hours");
+          }}
+          className="focus:bg-gray-500/20 px-1 rounded-lg focus:outline-none"
+        >
+          {values.hours}
+        </span>
+        <span>:</span>
+        <span
+          ref={minuteRef}
+          tabIndex={0}
+          onClick={(e) => {
+            e.currentTarget.focus();
+            setFocusOn("minutes");
+          }}
+          className="focus:bg-gray-500/20 px-1 rounded-lg focus:outline-none"
+        >
+          {values.minutes}
+        </span>
+        <span>:</span>
+        <span
+          ref={secondRef}
+          tabIndex={0}
+          onClick={(e) => {
+            e.currentTarget.focus();
+            setFocusOn("seconds");
+          }}
+          className="focus:bg-gray-500/20 px-1 rounded-lg focus:outline-none"
+        >
+          {values.seconds}
+        </span>
+        <label
+          className={`font-inter text-sm font-medium absolute top-0 -translate-y-[10px] bg-inherit transition-colors px-1 ${
+            focusOn && "text-primary"
+          }`}
+        >
+          {label}
+        </label>
+      </div>
     </div>
   );
 }
