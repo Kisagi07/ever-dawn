@@ -1,5 +1,5 @@
 "use client";
-import { ReactNode, MouseEvent, useState } from "react";
+import { ReactNode } from "react";
 
 const Button = ({
   type = "button",

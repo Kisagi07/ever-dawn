@@ -1,6 +1,6 @@
 "use client";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
-import { createContext, ReactNode, useContext, useRef, useState } from "react";
+import { createContext, ReactNode, useState } from "react";
 
 interface Toast {
   id: string;

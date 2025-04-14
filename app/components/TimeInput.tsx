@@ -47,7 +47,7 @@ export default function TimeInput({
         if (prevValue === "--") {
           return `-${value}`;
         } else if (prevValue.split("")[0] === "-") {
-          const [_, second] = prevValue.split("");
+          const second = prevValue.split("")[1];
           if (+second > 2 || (+second >= 2 && +value > 3)) {
             return `-${value}`;
           }
@@ -63,7 +63,7 @@ export default function TimeInput({
         if (prevValue === "--") {
           return `-${value}`;
         } else if (prevValue.split("")[0] === "-") {
-          const [_, second] = prevValue.split("");
+          const second = prevValue.split("")[1];
           if (+second >= 6 || (+second >= 6 && +value > 0)) {
             return `-${value}`;
           }

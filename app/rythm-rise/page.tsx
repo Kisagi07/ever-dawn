@@ -32,12 +32,14 @@ const Page = () => {
       hourStart = new Time(formData.get("hourStart") as string);
     } catch (error) {
       toast("Invalid hour start values", "red");
+      console.error(error);
       return;
     }
 
     try {
       hourEnd = new Time(formData.get("hourEnd") as string);
     } catch (error) {
+      console.error(error);
       toast("Invalid hour end values", "red");
       return;
     }
@@ -58,7 +60,7 @@ const Page = () => {
     const totalLearnTime = (totalFreeTime * learnPercentage) / 100;
     const totalSessions = Math.floor(totalLearnTime / maxFocus);
     const remainingTime = totalLearnTime % maxFocus;
-    const sessionChunks = Array.from({ length: totalSessions }, (_, i) => {
+    const sessionChunks = Array.from({ length: totalSessions }, () => {
       return maxFocus;
     });
     if (remainingTime > 0) {
@@ -71,7 +73,7 @@ const Page = () => {
       .map((chunk) => {
         const decimal = breakTime - Math.floor(breakTime);
         breakCarry += decimal;
-        let bonus = Math.floor(breakCarry / 1);
+        const bonus = Math.floor(breakCarry / 1);
         if (bonus > 0) {
           breakCarry = breakCarry % 1;
         }
@@ -122,7 +124,7 @@ const Page = () => {
               Generated Sessions
             </h3>
             <ul className="flex flex-wrap gap-2">
-              {generatedSessions.map((session, index) => (
+              {generatedSessions.map((session) => (
                 <Session
                   break={session.break}
                   focus={session.focus}

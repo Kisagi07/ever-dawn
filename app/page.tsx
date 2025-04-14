@@ -1,8 +1,5 @@
 import Link from "next/link";
-import Image, { StaticImageData } from "next/image";
-import Logo from "@/public/images/logo.png";
-import SpreadLearn from "@/public/images/spread-learn-icon.png";
-import DistantLight from "@/public/images/distant-light.png";
+import Image from "next/image";
 
 const Home = () => {
   return (
@@ -14,7 +11,9 @@ const Home = () => {
             className="font-inter max-w-7xl mx-auto p-4 space-y-8  rounded py-8 md:flex md:items-center md:gap-40 md:space-y-0 md:p-8"
           >
             <Image
-              src={Logo}
+              src="/images/logo.png"
+              width={160}
+              height={160}
               alt=""
               className="size-40 mx-auto md:order-2 md:size-60"
             />
@@ -37,12 +36,12 @@ const Home = () => {
             <Tool
               href="/rythm-rise"
               title="Rythm Rise"
-              imageSrc={SpreadLearn}
+              imageSrc="/images/spread-learn-icon.png"
             />
             <Tool
               href="/distant-light"
               title="Distant Light"
-              imageSrc={DistantLight}
+              imageSrc="/images/distant-light.png"
             />
           </div>
         </section>
@@ -60,14 +59,14 @@ function Tool({
 }: {
   title: string;
   href: string;
-  imageSrc: StaticImageData;
+  imageSrc: string;
 }) {
   return (
     <Link
       href={href}
       className="interactable bg-white rounded-lg flex flex-col items-center p-4 space-y-4 shadow"
     >
-      <Image src={imageSrc} alt="" className="size-20" />
+      <Image src={imageSrc} alt="" className="size-20" width={80} height={80} />
       <h3 className="text-center font-medium">{title}</h3>
     </Link>
   );
