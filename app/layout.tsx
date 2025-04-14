@@ -1,23 +1,11 @@
 import type { Metadata } from "next";
-import {
-  Cormorant_Garamond,
-  Geist,
-  Geist_Mono,
-  Inter,
-  JetBrains_Mono,
-} from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { ToastProvider } from "./components/Toast";
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
-});
-
-const cormorant = Cormorant_Garamond({
-  variable: "--font-cormorant",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
 });
 
 // JetBrains Mono as monospace font
