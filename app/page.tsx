@@ -1,7 +1,5 @@
 import Link from "next/link";
 import Image from "next/image";
-import Logo from "@/public/images/logo.png";
-import SpreadLearn from "@/public/images/spread-learn-icon.png";
 
 const Home = () => {
   return (
@@ -13,7 +11,7 @@ const Home = () => {
             className="font-inter max-w-7xl mx-auto p-4 space-y-8  rounded py-8 md:flex md:items-center md:gap-40 md:space-y-0 md:p-8"
           >
             <Image
-              src={Logo}
+              src="/images/logo.png"
               alt=""
               className="size-40 mx-auto md:order-2 md:size-60"
             />
@@ -37,7 +35,11 @@ const Home = () => {
               href="/rythm-rise"
               className="interactable bg-white rounded-lg flex flex-col items-center p-4 space-y-4 shadow"
             >
-              <Image src={SpreadLearn} alt="" className="size-20" />
+              <Image
+                src="/images/spread-learn-icon.png"
+                alt=""
+                className="size-20"
+              />
               <h3 className="text-center font-medium">Rythm Rise</h3>
             </Link>
           </div>
