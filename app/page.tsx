@@ -39,8 +39,8 @@ const Home = () => {
               imageSrc="/images/spread-learn-icon.png"
             />
             <Tool
-              href="/distant-light"
-              title="Distant Light"
+              href="/distant-star"
+              title="Distant Star"
               imageSrc="/images/distant-light.png"
             />
           </div>
