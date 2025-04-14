@@ -6,8 +6,7 @@ import FloatingText from "@/app/components/FloatingText";
 import TimeInput from "@/app/components/TimeInput";
 import Time from "@/app/classes/Time";
 import { toast } from "../components/Toast";
-import Link from "next/link";
-import { ChevronRightIcon } from "@heroicons/react/24/outline";
+import BreadCrumb from "../components/BreadCrumb";
 
 const Page = () => {
   const [generatedSessions, setGeneratedSessions] = useState<
@@ -90,13 +89,7 @@ const Page = () => {
   return (
     <div className="py-8">
       <div className="bg-white rounded-lg space-y-8 p-4 py-8 md:p-8 max-w-7xl mx-auto">
-        <div className="flex items-center gap-4 font-medium">
-          <Link href="/" className="text-neutral-500">
-            Home
-          </Link>
-          <ChevronRightIcon className="size-4" />
-          <Link href="#">Rythm Rise</Link>
-        </div>
+        <BreadCrumb />
         <h2 className="font-cormorant font-semibold text-3xl">Rythm Rise</h2>
         <form
           className="grid gap-4 bg-inherit sm:grid-cols-2 md:grid-cols-4"
