@@ -12,6 +12,8 @@ const Home = () => {
           >
             <Image
               src="/images/logo.png"
+              width={160}
+              height={160}
               alt=""
               className="size-40 mx-auto md:order-2 md:size-60"
             />
@@ -39,6 +41,8 @@ const Home = () => {
                 src="/images/spread-learn-icon.png"
                 alt=""
                 className="size-20"
+                width={80}
+                height={80}
               />
               <h3 className="text-center font-medium">Rythm Rise</h3>
             </Link>
