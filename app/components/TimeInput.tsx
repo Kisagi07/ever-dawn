@@ -134,7 +134,7 @@ export default function TimeInput({
 
   return (
     <div
-      className={`font-jetbrains-mono border  rounded flex transition-all items-center p-2 select-none relative bg-inherit ${
+      className={`font-jetbrains-mono border mt-3 rounded flex transition-all items-center p-2 select-none relative bg-inherit ${
         focusOn ? "ring-1 ring-primary border-primary" : "border-accent"
       }`}
     >

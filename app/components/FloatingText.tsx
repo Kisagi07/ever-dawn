@@ -32,7 +32,7 @@ const FloatingText = ({
   };
 
   return (
-    <div className="relative bg-inherit">
+    <div className="relative bg-white mt-3">
       <input
         id={name}
         name={name}
