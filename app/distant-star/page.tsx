@@ -5,9 +5,10 @@ import Button from "../components/Button";
 import FloatingText from "../components/FloatingText";
 import { FormEvent } from "react";
 import { toast } from "../components/Toast";
+import redis from "../upstash";
 
 export default function Page() {
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // get data
     const formData = new FormData(e.currentTarget);
@@ -17,17 +18,43 @@ export default function Page() {
       .trim();
     // validate data
     if (!name) {
-      toast("Star name required", "red");
+      toast("Even star need a name to shine", "red");
       return;
     }
     if (!hour || hour === "0") {
-      toast("Distance required", "red");
+      toast("Set the distance -- every star needs a place in the sky.", "red");
       return;
     }
     hour = Number(hour);
     if (isNaN(hour)) {
-      toast("Distance need to be a number", "red");
+      toast("The star awaits, but the path must be clear in numbers", "red");
       return;
+    }
+
+    // get old data
+    let stars: Star[] | null = [];
+    try {
+      const oldStars = await redis.get<Star[]>("star");
+      if (oldStars) {
+        stars = oldStars;
+      }
+    } catch (error) {
+      console.error(error);
+      toast("The sky flickered -- past journeys couldn't be found.", "red");
+      return;
+    }
+    const data: Star = {
+      name,
+      hour,
+    };
+    stars.push(data);
+    // store data to upstash
+    try {
+      const result = await redis.set(`star`, stars);
+      toast("The sky holds one more dream now.", "blue");
+    } catch (error) {
+      console.error(error);
+      toast("Clouds crossed your sky. Try once more.", "red");
     }
   };
 
