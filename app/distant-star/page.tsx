@@ -59,12 +59,12 @@ export default function Page() {
   };
 
   return (
-    <div className="p-8">
+    <div className="p-2 sm:p-4 md:p-8">
       <section className="max-w-7xl bg-white shadow-lg rounded-lg p-8 mx-auto space-y-8">
         <BreadCrumb />
         <p>Each hour lights the path ahead.</p>
-        <form onSubmit={handleSubmit} className="flex gap-4 items-center">
-          <Button className="mt-3" type="submit">
+        <form onSubmit={handleSubmit} className="sm:flex gap-4 items-center">
+          <Button className="mt-3 w-full sm:w-60 md:w-40" type="submit">
             <PlusCircleIcon className="size-6" />
             New Star
           </Button>
