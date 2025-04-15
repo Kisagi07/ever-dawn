@@ -92,7 +92,7 @@ export default function Page() {
           </p>
         </div>
         <div className="grid grid-rows-[10rem] grid-cols-[10rem] justify-center">
-          <Star name="Photography" hour={500} />
+          <Star name="Photography" targetHours={500} spentMinutes={120} />
         </div>
       </section>
     </div>
@@ -101,7 +101,7 @@ export default function Page() {
 
 type StarColor = "red" | "blue" | "neutral";
 
-function Star({ name, hour }: Star) {
+function Star({ name, targetHours, spentMinutes }: Omit<Star, "createdAt">) {
   const [style, setStyle] = useState({});
   const [color, setColor] = useState<StarColor>("neutral");
   const [display, setDisplay] = useState(false);
@@ -163,7 +163,7 @@ function Star({ name, hour }: Star) {
             }`}
           ></div>
         </div>
-        <p className="text-sm text-neutral-500 font-medium">
+        <p className="text-sm text-neutral-500 font-medium text-center">
           <span
             className={`font-medium ${
               color === "red"
@@ -173,9 +173,9 @@ function Star({ name, hour }: Star) {
                 : "text-neutral-400"
             }`}
           >
-            480h
+            {Math.floor(spentMinutes / 60)}h
           </span>{" "}
-          of {hour}h
+          of {targetHours}h
         </p>
       </div>
     </div>
