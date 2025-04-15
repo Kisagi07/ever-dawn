@@ -45,7 +45,9 @@ export default function Page() {
     }
     const data: Star = {
       name,
-      hour,
+      targetHours: hour,
+      spentMinutes: 0,
+      createdAt: new Date(),
     };
     stars.push(data);
     // store data to upstash
