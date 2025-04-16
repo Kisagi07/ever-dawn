@@ -3,12 +3,21 @@ import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import BreadCrumb from "../components/BreadCrumb";
 import Button from "../components/Button";
 import FloatingText from "../components/FloatingText";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { toast } from "../components/Toast";
 import redis from "../upstash";
 
 export default function Page() {
-  const [totalStar, setTotalStar] = useState(2);
+  // const [stars, setStars] = useState<Star[]>([
+  //   { name: "Photography", spentMinutes: 150, targetHours: 100 },
+  //   { name: "Programming", spentMinutes: 900, targetHours: 100 },
+  // ]);
+  // const [containerHeight, setContainerHeight] = useState(240 * 2);
+  // const [containerWidth, setContainerWidth] = useState(0);
+  // const positionedStars = useRef<
+  //   { x: number; y: number; size: number; style: any; color: "red" | "blue" }[]
+  // >([]);
+  // const starContainerRef = useRef<HTMLDivElement>(null);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -62,6 +71,69 @@ export default function Page() {
     }
   };
 
+  // const generatePosition = () => {
+  //   // #region absolute positioning
+  //   const starSize = 128;
+  //   const maxXDistance = containerWidth - starSize;
+  //   const maxYDistance = containerHeight - starSize;
+  //   const maxXDistancePercentage = (maxXDistance / containerWidth) * 100;
+  //   const maxYDistancePercentage = (maxYDistance / containerHeight) * 100;
+
+  //   let positionFound = false;
+  //   let xDistance = 0;
+  //   let yDistance = 0;
+  //   // Generate a non overlapping position
+  //   while (!positionFound) {
+  //     yDistance = Math.ceil(Math.random() * maxYDistancePercentage);
+  //     xDistance = Math.ceil(Math.random() * maxXDistancePercentage);
+
+  //     // Check for overlap with existing stars
+  //     positionFound = positionedStars.current.every((star) => {
+  //       const distance = Math.sqrt(
+  //         Math.pow(star.x - xDistance, 2) + Math.pow(star.y - yDistance, 2)
+  //       );
+  //       return distance > starSize; // Ensure no overlap
+  //     });
+  //   }
+  //   const style = {
+  //     top: `${yDistance}%`,
+  //     bottom: `${xDistance}%`,
+  //   };
+  //   const colors = ["red", "blue"];
+  //   const color = colors[
+  //     Math.floor(Math.random() * colors.length)
+  //   ] as StarColor;
+  //   // Save the new positioned
+  //   positionedStars.current.push({
+  //     x: xDistance,
+  //     y: yDistance,
+  //     size: starSize,
+  //     style,
+  //     color,
+  //   });
+  // };
+
+  // useEffect(() => {
+  //   if (starContainerRef.current) {
+  //     const width = starContainerRef.current.clientWidth;
+  //     setContainerWidth(width);
+  //   } else {
+  //     setContainerWidth(0);
+  //   }
+  // }, [starContainerRef.current]);
+
+  // useEffect(() => {
+  //   setContainerHeight(stars.length * 240);
+  // }, [stars]);
+
+  // useEffect(() => {
+  //   stars.forEach(() => generatePosition);
+  // }, [stars, containerHeight]);
+
+  // useEffect(() => {
+  //   console.log(positionedStars.current);
+  // }, [positionedStars.current]);
+
   return (
     <div className="p-2 sm:p-4 md:p-8 space-y-4">
       <section className="max-w-7xl bg-white shadow-lg rounded-lg md:p-8 p-4 mx-auto space-y-8">
@@ -73,7 +145,7 @@ export default function Page() {
           onSubmit={handleSubmit}
           className="sm:flex gap-4 space-y-4 sm:space-y-0 items-center"
         >
-          <Button className="mt-3 w-full sm:w-60 md:w-40" type="submit">
+          <Button className="mt-3 w-full sm:w-60 md:w-45" type="submit">
             <PlusCircleIcon className="size-6" />
             New Star
           </Button>
@@ -93,8 +165,11 @@ export default function Page() {
             Every star here marks a promise to yourself.
           </p>
         </div>
-        <div className={`h-[calc(15rem_*_${totalStar})] relative`}>
-          <Star
+        <div
+          className={`h-20 relative`}
+          // ref={starContainerRef}
+        >
+          {/* <Star
             containerSize={240 * totalStar}
             name="Photography"
             targetHours={500}
@@ -105,7 +180,7 @@ export default function Page() {
             name="Coding"
             targetHours={200}
             spentMinutes={300}
-          />
+          /> */}
           {/* <CircularProgress progress={20} strokeWidth={6} />
           <CircularProgress progress={70} strokeWidth={6} /> */}
         </div>
