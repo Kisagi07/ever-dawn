@@ -8,6 +8,8 @@ import { toast } from "../components/Toast";
 import redis from "../upstash";
 
 export default function Page() {
+  const [totalStar, setTotalStar] = useState(2);
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // get data
@@ -91,25 +93,42 @@ export default function Page() {
             Every star here marks a promise to yourself.
           </p>
         </div>
-        <div className="grid grid-rows-[10rem] grid-cols-[10rem] justify-center">
-          <Star name="Photography" targetHours={500} spentMinutes={120} />
+        <div className={`h-[calc(15rem_*_${totalStar})] relative`}>
+          <Star
+            containerSize={240 * totalStar}
+            name="Photography"
+            targetHours={500}
+            spentMinutes={18000}
+          />
+          <Star
+            containerSize={240 * totalStar}
+            name="Coding"
+            targetHours={200}
+            spentMinutes={300}
+          />
+          {/* <CircularProgress progress={20} strokeWidth={6} />
+          <CircularProgress progress={70} strokeWidth={6} /> */}
         </div>
       </section>
     </div>
   );
 }
 
-type StarColor = "red" | "blue" | "neutral";
+type StarColor = "red" | "blue";
 
-function Star({ name, targetHours, spentMinutes }: Omit<Star, "createdAt">) {
+function Star({
+  name,
+  targetHours,
+  spentMinutes,
+  containerSize,
+}: Omit<Star, "createdAt"> & { containerSize: number }) {
   const [style, setStyle] = useState({});
-  const [color, setColor] = useState<StarColor>("neutral");
+  const [color, setColor] = useState<StarColor>("blue");
   const [display, setDisplay] = useState(false);
 
   useEffect(() => {
     // #region absolute positioning
-    const containerSize = 160;
-    const starSize = 80;
+    const starSize = 128;
     const maxDistance = containerSize - starSize;
     const maxDistancePercentage = (maxDistance / containerSize) * 100;
     const yAxis = ["top", "bottom"];
@@ -135,34 +154,17 @@ function Star({ name, targetHours, spentMinutes }: Omit<Star, "createdAt">) {
     setDisplay(true);
   }, []); // Run only once on the client side
 
+  const progress = (Math.floor(spentMinutes / 60) / targetHours) * 100;
+
   return (
-    <div className="relative">
-      <div
-        style={style}
-        className={`absolute transition-opacity ${
-          display ? "opacity-100" : "opacity-0"
-        }`}
-      >
-        <div
-          className={`relative flex justify-center z-10 items-center size-24 border-6 rounded-full ${
-            color === "red"
-              ? "border-red-200"
-              : color === "blue"
-              ? "border-blue-200"
-              : "border-neutral-200"
-          }`}
-        >
-          <h3 className="bg-white">{name}</h3>
-          <div
-            className={`size-28absolute rounded-full opacity-30 blur-2xl ${
-              color === "red"
-                ? "bg-red-500"
-                : color === "blue"
-                ? "bg-blue-500"
-                : "bg-neutral-500"
-            }`}
-          ></div>
-        </div>
+    <div className="absolute" style={style}>
+      <div className="relative flex items-center flex-col gap-2 aspect-square w-32">
+        <CircularProgress
+          color={color}
+          progress={progress}
+          strokeWidth={6}
+          starName={name}
+        />
         <p className="text-sm text-neutral-500 font-medium text-center">
           <span
             className={`font-medium ${
@@ -181,3 +183,67 @@ function Star({ name, targetHours, spentMinutes }: Omit<Star, "createdAt">) {
     </div>
   );
 }
+
+interface CircularProgressProps {
+  progress: number;
+  size?: number;
+  strokeWidth?: number;
+  color?: "blue" | "red";
+  starName: string;
+}
+
+const CircularProgress: React.FC<CircularProgressProps> = ({
+  progress,
+  size = 100,
+  strokeWidth = 10,
+  color = "blue",
+  starName,
+}) => {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (progress / 100) * circumference;
+
+  return (
+    <div className="relative">
+      <div
+        className={`size-27 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-50 blur-3xl ${
+          color === "blue" ? "bg-blue-600" : "bg-red-600"
+        }`}
+      ></div>
+      <svg width={size} height={size}>
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke={
+            color === "blue"
+              ? "oklch(88.2% 0.059 254.128)"
+              : "oklch(88.5% 0.062 18.334)"
+          }
+          strokeWidth={strokeWidth}
+          fill="none"
+        />
+        {/* Progress Circle */}
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke={
+            color === "blue"
+              ? "oklch(70.7% 0.165 254.624)"
+              : "oklch(70.4% 0.191 22.216)"
+          }
+          strokeWidth={strokeWidth}
+          fill="none"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
+          className="transition-all duration-500"
+        />
+      </svg>
+      <p className="bg-white/70 rounded-lg px-2 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+        {starName}
+      </p>
+    </div>
+  );
+};
