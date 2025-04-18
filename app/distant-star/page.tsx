@@ -110,7 +110,46 @@ export default function Page() {
             Every star here marks a promise to yourself.
           </p>
         </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {stars.map((star) => (
+            <Star
+              key={star.name}
+              name={star.name}
+              targetHours={star.targetHours}
+              spentHours={Math.floor(star.spentMinutes / 60)}
+            />
+          ))}
+        </div>
       </section>
     </div>
   );
 }
+
+const Star = ({
+  name,
+  targetHours,
+  spentHours,
+}: {
+  name: string;
+  targetHours: number;
+  spentHours: number;
+}) => {
+  const percentage = (spentHours / targetHours) * 100;
+  return (
+    <div className="bg-neutral-100 rounded-lg p-4 space-y-2">
+      <h3 className="font-medium">{name}</h3>
+      <div className="flex items-center gap-4">
+        <img src="/svgs/star-glow.svg" alt="Star Icon" className="size-10" />
+        <span>
+          {spentHours}h of {targetHours}h
+        </span>
+      </div>
+      <div className="h-2 bg-red-100 rounded-full">
+        <div
+          style={{ width: `${percentage}%` }}
+          className="h-2 bg-red-500 rounded-full"
+        ></div>
+      </div>
+    </div>
+  );
+};
