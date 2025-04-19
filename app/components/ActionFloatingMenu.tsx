@@ -1,4 +1,4 @@
-import { ClockIcon } from "@heroicons/react/24/outline";
+import { ArrowsRightLeftIcon, ClockIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import { MouseEvent, ReactNode, useEffect, useRef, useState } from "react";
 import Tooltip from "./Tooltip";
@@ -6,10 +6,12 @@ import Tooltip from "./Tooltip";
 interface ActionFloatingMenuProps {
   children: ReactNode;
   addTimeOnClick: () => void;
+  onSpentMinuteCorrectionClick: () => void;
 }
 const ActionFloatingMenu = ({
   children,
   addTimeOnClick,
+  onSpentMinuteCorrectionClick,
 }: ActionFloatingMenuProps) => {
   const [position, setPosition] = useState({ left: 0, top: 0 });
 
@@ -28,7 +30,7 @@ const ActionFloatingMenu = ({
       const { clientX, clientY } = e;
       const rect = e.currentTarget.getBoundingClientRect();
       const x = clientX - rect.left - 20;
-      const y = clientY - rect.top - 50;
+      const y = clientY - rect.top - 20;
       setPosition({ top: y, left: x });
 
       document.addEventListener("click", handleAutoClose);
@@ -52,14 +54,28 @@ const ActionFloatingMenu = ({
           top: position.top,
         }}
       >
-        <Tooltip text="Add Time Spent">
-          <button
-            onClick={addTimeOnClick}
-            className="bg-white cursor-pointer rounded-full p-2 ring ring-neutral-300 shadow after:content-[''] after:absolute  after:top-0 after:left-0 after:w-full after:h-full after:bg-black after:rounded-[inherit] after:opacity-0 after:transition-opacity hover:after:opacity-hover focus:after:opacity-focus active:after:opacity-active"
-          >
-            <ClockIcon className="size-6" />
-          </button>
-        </Tooltip>
+        <div className="relative z-10">
+          <div className="absolute -translate-y-full">
+            <Tooltip text="Add Time Spent">
+              <button
+                onClick={addTimeOnClick}
+                className="bg-white cursor-pointer rounded-full p-2 ring ring-neutral-300 shadow after:content-[''] after:absolute  after:top-0 after:left-0 after:w-full after:h-full after:bg-black after:rounded-[inherit] after:opacity-0 after:transition-opacity hover:after:opacity-hover focus:after:opacity-focus active:after:opacity-active"
+              >
+                <ClockIcon className="size-6" />
+              </button>
+            </Tooltip>
+          </div>
+          <div className="absolute -translate-y-[calc(100%-20px)] translate-x-10">
+            <Tooltip text="Spent Minute Correction">
+              <button
+                onClick={onSpentMinuteCorrectionClick}
+                className="bg-white cursor-pointer rounded-full p-2 ring ring-neutral-300 shadow after:content-[''] after:absolute  after:top-0 after:left-0 after:w-full after:h-full after:bg-black after:rounded-[inherit] after:opacity-0 after:transition-opacity hover:after:opacity-hover focus:after:opacity-focus active:after:opacity-active"
+              >
+                <ArrowsRightLeftIcon className="size-6" />
+              </button>
+            </Tooltip>
+          </div>
+        </div>
       </div>
       {children}
     </div>
