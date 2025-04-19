@@ -12,9 +12,10 @@ import Modal from "../components/Modal";
 export default function Page() {
   const [stars, setStars] = useState<Star[]>([]);
   const [openAddTimeModal, setOpenAddTimeModal] = useState(false);
-  const [addingTimeStar, setAddingTimeStar] = useState("");
+  const [openTimeSpentCorrection, setOpenTimeSpentCorrection] = useState(false);
+  const [activeActionStar, setActiveActionStar] = useState("");
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleAddStarSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // get data
     const formData = new FormData(e.currentTarget);
@@ -67,6 +68,50 @@ export default function Page() {
     }
   };
 
+  const handleAddMinuteSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const minutes = Number(formData.get("minutes"));
+    if (isNaN(minutes)) {
+      toast("Minutes must be number", "red");
+    }
+    handleAddMinute(minutes);
+  };
+
+  const handleSpentMinuteCorrectionSubmit = async (
+    e: FormEvent<HTMLFormElement>
+  ) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const minutes = Number(formData.get("minutes"));
+    if (isNaN(minutes)) {
+      toast("Minutes must be number", "red");
+    }
+
+    const starIndex = stars.findIndex((star) => star.name === activeActionStar);
+    if (starIndex !== -1) {
+      try {
+        let updated = [...stars];
+        updated[starIndex].spentMinutes = minutes;
+        await redis.set("stars", updated);
+        setStars(updated);
+        setOpenTimeSpentCorrection(false);
+        toast(
+          `${activeActionStar} spent minutes successfully corrected`,
+          "blue"
+        );
+      } catch (error) {
+        console.error(error);
+        toast(
+          "Failed in correcting minutes spent to " + activeActionStar,
+          "red"
+        );
+      }
+    } else {
+      toast("Correcting spent minutes to a star that is not found");
+    }
+  };
+
   const getStars = async () => {
     try {
       const stars = await redis.get<Star[]>("stars");
@@ -80,17 +125,18 @@ export default function Page() {
   };
 
   const handleAddMinute = async (minute: number) => {
-    const starIndex = stars.findIndex((star) => star.name === addingTimeStar);
+    const starIndex = stars.findIndex((star) => star.name === activeActionStar);
     if (starIndex !== -1) {
       try {
         let updated = [...stars];
         updated[starIndex].spentMinutes += minute;
         await redis.set("stars", updated);
         setStars(updated);
+        setOpenAddTimeModal(false);
       } catch (error) {
         console.error(error);
         toast(
-          "Failed in manually adding minutes spent to " + addingTimeStar,
+          "Failed in manually adding minutes spent to " + activeActionStar,
           "red"
         );
       }
@@ -101,6 +147,10 @@ export default function Page() {
 
   const handleAddTimeClick = () => {
     setOpenAddTimeModal(true);
+  };
+
+  const handleSpentMinuteCorrectionClick = () => {
+    setOpenTimeSpentCorrection(true);
   };
 
   useEffect(() => {
@@ -116,7 +166,7 @@ export default function Page() {
             <p>Each hour lights the path ahead.</p>
           </div>
           <form
-            onSubmit={handleSubmit}
+            onSubmit={handleAddStarSubmit}
             className="sm:flex gap-4 space-y-4 sm:space-y-0 items-center"
           >
             <Button className="mt-3 w-full sm:w-60 md:w-45" type="submit">
@@ -144,9 +194,12 @@ export default function Page() {
               <ActionFloatingMenu
                 key={star.name}
                 addTimeOnClick={() => {
-                  console.log(star.name);
-                  setAddingTimeStar(star.name);
+                  setActiveActionStar(star.name);
                   handleAddTimeClick();
+                }}
+                onSpentMinuteCorrectionClick={() => {
+                  setActiveActionStar(star.name);
+                  handleSpentMinuteCorrectionClick();
                 }}
               >
                 <Star
@@ -160,10 +213,33 @@ export default function Page() {
         </section>
       </div>
       {openAddTimeModal && (
-        <Modal
-          addMinute={handleAddMinute}
-          onClose={() => setOpenAddTimeModal(false)}
-        />
+        <Modal onClose={() => setOpenAddTimeModal(false)}>
+          <h3 className="font-medium text-xl border-b border-neutral-200">
+            Add Time
+          </h3>
+          <form className="space-y-4" onSubmit={handleAddMinuteSubmit}>
+            <FloatingText label="Add Minutes" name="minutes" />
+            <Button className="w-full" type="submit">
+              Add
+            </Button>
+          </form>
+        </Modal>
+      )}
+      {openTimeSpentCorrection && (
+        <Modal onClose={() => setOpenTimeSpentCorrection(false)}>
+          <h3 className="font-medium text-xl border-b border-neutral-200">
+            Spent Minutes Correction
+          </h3>
+          <form
+            className="space-y-4"
+            onSubmit={handleSpentMinuteCorrectionSubmit}
+          >
+            <FloatingText label="Minutes" name="minutes" />
+            <Button className="w-full" type="submit">
+              Save
+            </Button>
+          </form>
+        </Modal>
       )}
     </>
   );
