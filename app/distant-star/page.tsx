@@ -8,11 +8,13 @@ import { toast } from "../components/Toast";
 import redis from "../upstash";
 import ActionFloatingMenu from "../components/ActionFloatingMenu";
 import Modal from "../components/Modal";
+import { Sarabun } from "next/font/google";
 
 export default function Page() {
   const [stars, setStars] = useState<Star[]>([]);
   const [openAddTimeModal, setOpenAddTimeModal] = useState(false);
   const [openTimeSpentCorrection, setOpenTimeSpentCorrection] = useState(false);
+  const [openDeleteConfirmation, setOpenDeleteConfirmation] = useState(false);
   const [activeActionStar, setActiveActionStar] = useState("");
 
   const handleAddStarSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -96,19 +98,13 @@ export default function Page() {
         await redis.set("stars", updated);
         setStars(updated);
         setOpenTimeSpentCorrection(false);
-        toast(
-          `${activeActionStar} spent minutes successfully corrected`,
-          "blue"
-        );
+        toast(`The star shine as much as you expected it to be`, "blue");
       } catch (error) {
         console.error(error);
-        toast(
-          "Failed in correcting minutes spent to " + activeActionStar,
-          "red"
-        );
+        toast(`You can't seems to measure the shine of the star`, "red");
       }
     } else {
-      toast("Correcting spent minutes to a star that is not found");
+      toast("You can't seems to find the star");
     }
   };
 
@@ -133,15 +129,16 @@ export default function Page() {
         await redis.set("stars", updated);
         setStars(updated);
         setOpenAddTimeModal(false);
+        toast(`${activeActionStar} star seems to shine even brighter`);
       } catch (error) {
         console.error(error);
         toast(
-          "Failed in manually adding minutes spent to " + activeActionStar,
+          `The shine of ${activeActionStar} star does not seems to change`,
           "red"
         );
       }
     } else {
-      toast("Adding minutes to a star that is not found");
+      toast("You can't seems to find the star");
     }
   };
 
@@ -151,6 +148,34 @@ export default function Page() {
 
   const handleSpentMinuteCorrectionClick = () => {
     setOpenTimeSpentCorrection(true);
+  };
+
+  const handleDeleteClick = () => {
+    setOpenDeleteConfirmation(true);
+  };
+
+  const handleDeleteStar = () => {
+    const updated = [...stars];
+    const index = updated.findIndex((star) => star.name === activeActionStar);
+    if (index !== -1) {
+      updated.splice(index, 1);
+      redis
+        .set("stars", updated)
+        .then(() => {
+          toast(
+            `${activeActionStar} star has been removed from the sky.`,
+            "blue"
+          );
+          setStars(updated);
+        })
+        .catch((error) => {
+          console.error(error);
+          toast("Failed to remove the star from the sky.", "red");
+        });
+      setOpenDeleteConfirmation(false);
+    } else {
+      toast("The star you wish to remove is not found.", "red");
+    }
   };
 
   useEffect(() => {
@@ -201,6 +226,10 @@ export default function Page() {
                   setActiveActionStar(star.name);
                   handleSpentMinuteCorrectionClick();
                 }}
+                onDeleteClick={() => {
+                  setActiveActionStar(star.name);
+                  handleDeleteClick();
+                }}
               >
                 <Star
                   name={star.name}
@@ -239,6 +268,22 @@ export default function Page() {
               Save
             </Button>
           </form>
+        </Modal>
+      )}
+      {openDeleteConfirmation && (
+        <Modal onClose={() => setOpenDeleteConfirmation(false)}>
+          <h3 className="font-medium text-xl ">
+            Delete Your {activeActionStar} Star ?
+          </h3>
+          <div className="flex gap-2 justify-end">
+            <Button onClick={handleDeleteStar}>Yes</Button>
+            <Button
+              onClick={() => setOpenDeleteConfirmation(false)}
+              className="!bg-neutral-300 !text-neutral-600 after:!bg-neutral-950"
+            >
+              Cancel
+            </Button>
+          </div>
         </Modal>
       )}
     </>
