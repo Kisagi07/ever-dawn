@@ -43,6 +43,11 @@ const Home = () => {
               title="Distant Star"
               imageSrc="/images/distant-light.png"
             />
+            <Tool
+              href="/sol-cycle"
+              title="Sol Cycle"
+              imageSrc="/images/sol-cycle.png"
+            />
           </div>
         </section>
       </div>
