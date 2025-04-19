@@ -56,9 +56,9 @@ export function ToastProvider({ children }: ToastProvider) {
         <div
           key={toast.id}
           style={{ bottom: `${10 + index * 5}px` }}
-          className={`ring fixed right-5 transition-[bottom] shadow-floating  p-4 rounded-lg max-w-80 w-full flex items-center gap-4 animate-wiggle ${toast.classNames}`}
+          className={`ring fixed right-5 transition-[bottom] shadow-floating  px-4 py-2 rounded-lg max-w-60 w-full flex items-center gap-2 animate-wiggle ${toast.classNames}`}
         >
-          <InformationCircleIcon className="h-6 w-6" />
+          <InformationCircleIcon className="size-6 shrink-0" />
           <span className="text-sm font-medium">{toast.message}</span>
         </div>
       ))}

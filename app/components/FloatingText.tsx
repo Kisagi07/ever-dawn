@@ -32,27 +32,29 @@ const FloatingText = ({
   };
 
   return (
-    <div className="relative bg-inherit">
-      <input
-        id={name}
-        name={name}
-        onFocus={handleOnFocus}
-        onBlur={handleOnBlur}
-        ref={inputRef}
-        value={internalValue}
-        onChange={(e) => setInternalValue(e.target.value)}
-        type="text"
-        className="border w-full peer border-outline rounded p-2 transition-all focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-medium"
-      />
-      <label
-        onClick={() => inputRef.current?.focus()}
-        htmlFor=""
-        className={` font-inter absolute left-4 top-1/2 -translate-y-1/2 block bg-inherit font-medium px-1 text-sm peer-focus:top-0 peer-focus:-translate-y-[10px] transition-all peer-focus:left-2 peer-focus:text-primary ${
-          hasValue ? " !top-0 !-translate-y-[10px] !left-2" : ""
-        }`}
-      >
-        {label}
-      </label>
+    <div className="pt-3">
+      <div className="relative bg-white">
+        <input
+          id={name}
+          name={name}
+          onFocus={handleOnFocus}
+          onBlur={handleOnBlur}
+          ref={inputRef}
+          value={internalValue}
+          onChange={(e) => setInternalValue(e.target.value)}
+          type="text"
+          className="border w-full peer border-outline rounded p-2 transition-all focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-medium"
+        />
+        <label
+          onClick={() => inputRef.current?.focus()}
+          htmlFor=""
+          className={` font-inter absolute left-4 top-1/2 -translate-y-1/2 block bg-inherit font-medium px-2 text-sm peer-focus:top-0 peer-focus:-translate-y-[10px] transition-all peer-focus:left-2 peer-focus:text-primary ${
+            hasValue ? " !top-0 !-translate-y-[10px] !left-2" : ""
+          }`}
+        >
+          {label}
+        </label>
+      </div>
     </div>
   );
 };

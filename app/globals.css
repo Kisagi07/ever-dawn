@@ -1,6 +1,10 @@
 @import "tailwindcss";
 
 @theme {
+  --opacity-hover: 0.08;
+  --opacity-focus: 0.1;
+  --opacity-active: 0.16;
+
   /* CSS HEX */
   --color-primary: #e7000bff;
   --color-secondary: #067bc2ff;
