@@ -3,11 +3,15 @@
 import { useEffect, useState } from "react";
 import BreadCrumb from "../components/BreadCrumb";
 import { toast } from "../components/Toast";
-import { send } from "process";
+import Tooltip from "../components/Tooltip";
+import clsx from "clsx";
 
 const Page = () => {
+  const [scheme, setScheme] = useState({ break: 5, focus: 25 });
+  const [activeType, setActiveType] = useState("focus");
   const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [isRunning, setIsRunning] = useState(false);
+  const [endTime, setEndTime] = useState<number | null>(null);
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -20,21 +24,24 @@ const Page = () => {
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
-    let endTime: number;
 
-    if (isRunning) {
-      endTime = Date.now() + timeLeft * 1000;
-
+    if (isRunning && endTime) {
       timer = setInterval(() => {
         const newTimeLeft = Math.round((endTime - Date.now()) / 1000);
 
         if (newTimeLeft <= 0) {
           setTimeLeft(0);
           setIsRunning(false);
-          // toast("Time's up!", "blue");
-          sendNotification();
-
+          setEndTime(null);
           clearInterval(timer);
+          sendNotification();
+          if (activeType === "focus") {
+            setActiveType("break");
+            setTimeLeft(scheme.break * 60);
+          } else {
+            setActiveType("focus");
+            setTimeLeft(scheme.focus * 60);
+          }
         } else {
           setTimeLeft(newTimeLeft);
         }
@@ -42,20 +49,29 @@ const Page = () => {
     }
 
     return () => clearInterval(timer);
-  }, [isRunning]);
+  }, [isRunning, endTime]);
 
   const handleStart = () => {
+    const newEndTime = Date.now() + timeLeft * 1000;
+    setEndTime(newEndTime);
     setIsRunning(true);
   };
 
   const handlePause = () => {
     setIsRunning(false);
+    if (endTime) {
+      const remaining = Math.round((endTime - Date.now()) / 1000);
+      setTimeLeft(remaining > 0 ? remaining : 0);
+    }
+    setEndTime(null);
   };
 
   const sendNotification = () => {
     if (Notification.permission === "granted") {
+      console.log("send notification");
       new Notification("Time's up!", {
-        body: "Your timer has finished.",
+        body: activeType === "focus" ? "Take a break!" : "Back to work!",
+        icon: "/images/logo.png",
       });
     } else {
       toast("Please allow notification in your browser settings.", "blue");
@@ -64,7 +80,15 @@ const Page = () => {
 
   const handleReset = () => {
     setIsRunning(false);
-    setTimeLeft(25 * 60);
+    switch (activeType) {
+      case "focus":
+        setTimeLeft(scheme.focus * 60);
+        break;
+      case "break":
+        setTimeLeft(scheme.break * 60);
+        break;
+    }
+    setEndTime(null);
   };
 
   useEffect(() => {
@@ -76,32 +100,78 @@ const Page = () => {
   return (
     <div className="bg-white w-full h-screen flex items-center justify-center flex-col gap-4">
       <BreadCrumb />
-      <p className=" text-primary font-medium">Drawing</p>
-      <h2 className="text-7xl font-bold text-primary">
+      <p
+        className={clsx("font-medium transition-colors", {
+          "text-secondary": activeType === "break",
+          "text-primary": activeType === "focus",
+        })}
+      >
+        Drawing
+      </p>
+      <h2
+        className={clsx(
+          "text-7xl transition-colors font-bold font-jetbrains-mono",
+          {
+            "text-secondary": activeType === "break",
+            "text-primary": activeType === "focus",
+          }
+        )}
+      >
         {formatTime(timeLeft)}
       </h2>
       {!isRunning ? (
         <button
           onClick={handleStart}
-          className="bg-primary text-white font-semibold text-2xl px-4 py-2 relative rounded-lg min-w-60 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full after:bg-black after:opacity-0 after:rounded-[inherit] after:transition-opacity hover:after:opacity-hover active:after:opacity-active focus:after:opacity-focus cursor-pointer"
+          className={clsx(
+            " text-white transition-colors font-semibold text-2xl px-4 py-2 relative rounded-lg min-w-60 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full after:bg-black after:opacity-0 after:rounded-[inherit] after:transition-opacity hover:after:opacity-hover active:after:opacity-active focus:after:opacity-focus cursor-pointer",
+            {
+              "bg-secondary": activeType === "break",
+              "bg-primary": activeType === "focus",
+            }
+          )}
         >
           Start
         </button>
       ) : (
         <button
           onClick={handlePause}
-          className="bg-secondary text-white font-semibold text-2xl px-4 py-2 relative rounded-lg min-w-60 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full after:bg-black after:opacity-0 after:rounded-[inherit] after:transition-opacity hover:after:opacity-hover active:after:opacity-active focus:after:opacity-focus cursor-pointer"
+          className={clsx(
+            "text-white transition-colors font-semibold text-2xl px-4 py-2 relative rounded-lg min-w-60 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full after:bg-black after:opacity-0 after:rounded-[inherit] after:transition-opacity hover:after:opacity-hover active:after:opacity-active focus:after:opacity-focus cursor-pointer",
+            {
+              "bg-secondary": activeType === "break",
+              "bg-primary": activeType === "focus",
+            }
+          )}
         >
           Pause
         </button>
       )}
       <button
         onClick={handleReset}
-        className="bg-white text-primary border border-primary font-semibold text-2xl px-4 py-2 relative rounded-lg min-w-60 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full after:bg-red-600 after:opacity-0 after:rounded-[inherit] after:transition-opacity hover:after:opacity-hover active:after:opacity-active focus:after:opacity-focus cursor-pointer"
+        className={clsx(
+          "bg-white transition-colors border font-semibold text-2xl px-4 py-2 relative rounded-lg min-w-60 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full after:bg-red-600 after:opacity-0 after:rounded-[inherit] after:transition-opacity hover:after:opacity-hover active:after:opacity-active focus:after:opacity-focus cursor-pointer",
+          {
+            "border-secondary text-secondary": activeType === "break",
+            "border-primary text-primary": activeType === "focus",
+          }
+        )}
       >
         Reset
       </button>
-      <h3 className="text-xl font-medium text-neutral-400">Focus</h3>
+      <Tooltip text={`Switch to ${activeType === "focus" ? "break" : "focus"}`}>
+        <button
+          disabled={isRunning}
+          onClick={() => {
+            setActiveType(activeType === "focus" ? "break" : "focus");
+            setTimeLeft(
+              (activeType === "focus" ? scheme.break : scheme.focus) * 60
+            );
+          }}
+          className="text-xl cursor-pointer hover:text-black transition-colors font-medium text-neutral-400 capitalize"
+        >
+          {activeType}
+        </button>
+      </Tooltip>
     </div>
   );
 };

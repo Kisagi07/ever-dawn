@@ -20,6 +20,7 @@
   --color-surface-5: #d6d6d6;
 
   --font-inter: var(--font-inter);
+  --font-jetbrains-mono: var(--font-jetbrans-mono);
 
   --shadow-floating: 0px 4px 6px rgba(0, 0, 0, 0.1),
     0px 1px 3px rgba(0, 0, 0, 0.06);
