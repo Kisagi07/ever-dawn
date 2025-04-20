@@ -71,7 +71,7 @@ const Page = () => {
       console.log("send notification");
       new Notification("Time's up!", {
         body: activeType === "focus" ? "Take a break!" : "Back to work!",
-        icon: "/images/logo.png",
+        icon: "/notification-icon.png",
       });
     } else {
       toast("Please allow notification in your browser settings.", "blue");
