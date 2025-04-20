@@ -39,6 +39,11 @@ const Page = () => {
     sendNotification("Good Job! You have done your sol session.");
   };
 
+  const newEndTime = (minute: number) => {
+    const newEndTime = Date.now() + minute * 60 * 1000;
+    setEndTime(newEndTime);
+  };
+
   useEffect(() => {
     let timer: NodeJS.Timeout;
 
@@ -47,18 +52,17 @@ const Page = () => {
         const newTimeLeft = Math.round((endTime - Date.now()) / 1000);
 
         if (newTimeLeft <= 0) {
-          // setIsRunning(false);
           clearInterval(timer);
           sendNotification();
           if (!Array.isArray(scheme)) {
-            setTimeLeft(0);
-            setEndTime(null);
             if (activeType === "focus") {
               setActiveType("break");
               setTimeLeft(scheme.break * 60);
+              newEndTime(scheme.break);
             } else {
               setActiveType("focus");
               setTimeLeft(scheme.focus * 60);
+              newEndTime(scheme.focus);
             }
           } else {
             const newScheme = [...scheme];
@@ -69,13 +73,16 @@ const Page = () => {
               if (nextScheme) {
                 setActiveType(nextScheme.type);
                 setTimeLeft(nextScheme.time * 60);
+                newEndTime(nextScheme.time);
               } else {
                 noSchemeRemaining();
                 setIsRunning(false);
+                setEndTime(null);
               }
             } else {
               noSchemeRemaining();
               setIsRunning(false);
+              setEndTime(null);
             }
           }
         } else {
@@ -103,18 +110,22 @@ const Page = () => {
   };
 
   const sendNotification = (text?: string) => {
-    if (Notification.permission === "granted") {
-      console.log("send notification");
-      new Notification("Time's up!", {
-        body: text
-          ? text
-          : activeType === "focus"
-          ? "Take a break!"
-          : "Back to work!",
-        icon: "/notification-icon.png",
-      });
+    if (document.visibilityState === "visible") {
+      toast("Time's up!", "blue");
+      return;
     } else {
-      toast("Please allow notification in your browser settings.", "blue");
+      if (Notification.permission === "granted") {
+        new Notification("Time's up!", {
+          body: text
+            ? text
+            : activeType === "focus"
+            ? "Take a break!"
+            : "Back to work!",
+          icon: "/notification-icon.png",
+        });
+      } else {
+        toast("Please allow notification in your browser settings.", "blue");
+      }
     }
   };
 
