@@ -18,11 +18,11 @@ interface IteratingScheme {
 
 const Page = () => {
   const [scheme, setScheme] = useState<SetScheme | IteratingScheme[]>({
-    break: 1,
-    focus: 1,
+    break: 5,
+    focus: 25,
   });
   const [activeType, setActiveType] = useState("focus");
-  const [timeLeft, setTimeLeft] = useState(1 * 60);
+  const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [isRunning, setIsRunning] = useState(false);
   const [endTime, setEndTime] = useState<number | null>(null);
 
