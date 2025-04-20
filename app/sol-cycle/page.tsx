@@ -6,10 +6,23 @@ import { toast } from "../components/Toast";
 import Tooltip from "../components/Tooltip";
 import clsx from "clsx";
 
+interface SetScheme {
+  break: number;
+  focus: number;
+}
+
+interface IteratingScheme {
+  type: "focus";
+  time: number;
+}
+
 const Page = () => {
-  const [scheme, setScheme] = useState({ break: 5, focus: 25 });
+  const [scheme, setScheme] = useState<SetScheme | IteratingScheme[]>({
+    break: 1,
+    focus: 1,
+  });
   const [activeType, setActiveType] = useState("focus");
-  const [timeLeft, setTimeLeft] = useState(25 * 60);
+  const [timeLeft, setTimeLeft] = useState(1 * 60);
   const [isRunning, setIsRunning] = useState(false);
   const [endTime, setEndTime] = useState<number | null>(null);
 
@@ -22,6 +35,10 @@ const Page = () => {
     )}`;
   };
 
+  const noSchemeRemaining = () => {
+    sendNotification("Good Job! You have done your sol session.");
+  };
+
   useEffect(() => {
     let timer: NodeJS.Timeout;
 
@@ -30,17 +47,36 @@ const Page = () => {
         const newTimeLeft = Math.round((endTime - Date.now()) / 1000);
 
         if (newTimeLeft <= 0) {
-          setTimeLeft(0);
-          setIsRunning(false);
-          setEndTime(null);
+          // setIsRunning(false);
           clearInterval(timer);
           sendNotification();
-          if (activeType === "focus") {
-            setActiveType("break");
-            setTimeLeft(scheme.break * 60);
+          if (!Array.isArray(scheme)) {
+            setTimeLeft(0);
+            setEndTime(null);
+            if (activeType === "focus") {
+              setActiveType("break");
+              setTimeLeft(scheme.break * 60);
+            } else {
+              setActiveType("focus");
+              setTimeLeft(scheme.focus * 60);
+            }
           } else {
-            setActiveType("focus");
-            setTimeLeft(scheme.focus * 60);
+            const newScheme = [...scheme];
+            if (newScheme.length > 0) {
+              // remove the first element from the array
+              newScheme.shift();
+              const nextScheme = newScheme.shift();
+              if (nextScheme) {
+                setActiveType(nextScheme.type);
+                setTimeLeft(nextScheme.time * 60);
+              } else {
+                noSchemeRemaining();
+                setIsRunning(false);
+              }
+            } else {
+              noSchemeRemaining();
+              setIsRunning(false);
+            }
           }
         } else {
           setTimeLeft(newTimeLeft);
@@ -66,11 +102,15 @@ const Page = () => {
     setEndTime(null);
   };
 
-  const sendNotification = () => {
+  const sendNotification = (text?: string) => {
     if (Notification.permission === "granted") {
       console.log("send notification");
       new Notification("Time's up!", {
-        body: activeType === "focus" ? "Take a break!" : "Back to work!",
+        body: text
+          ? text
+          : activeType === "focus"
+          ? "Take a break!"
+          : "Back to work!",
         icon: "/notification-icon.png",
       });
     } else {
@@ -80,13 +120,18 @@ const Page = () => {
 
   const handleReset = () => {
     setIsRunning(false);
-    switch (activeType) {
-      case "focus":
-        setTimeLeft(scheme.focus * 60);
-        break;
-      case "break":
-        setTimeLeft(scheme.break * 60);
-        break;
+    if (!Array.isArray(scheme)) {
+      switch (activeType) {
+        case "focus":
+          setTimeLeft(scheme.focus * 60);
+          break;
+        case "break":
+          setTimeLeft(scheme.break * 60);
+          break;
+      }
+    } else {
+      setTimeLeft(scheme[0].time * 60);
+      setActiveType(scheme[0].type);
     }
     setEndTime(null);
   };
@@ -162,10 +207,24 @@ const Page = () => {
         <button
           disabled={isRunning}
           onClick={() => {
-            setActiveType(activeType === "focus" ? "break" : "focus");
-            setTimeLeft(
-              (activeType === "focus" ? scheme.break : scheme.focus) * 60
-            );
+            if (Array.isArray(scheme)) {
+              const newScheme = [...scheme];
+              // remove current scheme
+              newScheme.shift();
+              const nextScheme = newScheme.shift();
+              if (nextScheme) {
+                setActiveType(nextScheme.type);
+                setTimeLeft(nextScheme.time * 60);
+              } else {
+                noSchemeRemaining();
+                setIsRunning(false);
+              }
+            } else {
+              setActiveType(activeType === "focus" ? "break" : "focus");
+              setTimeLeft(
+                (activeType === "focus" ? scheme.break : scheme.focus) * 60
+              );
+            }
           }}
           className="text-xl cursor-pointer hover:text-black transition-colors font-medium text-neutral-400 capitalize"
         >
