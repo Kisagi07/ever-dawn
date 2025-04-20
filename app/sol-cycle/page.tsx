@@ -205,10 +205,12 @@ const Page = () => {
       <button
         onClick={handleReset}
         className={clsx(
-          "bg-white transition-colors border font-semibold text-2xl px-4 py-2 relative rounded-lg min-w-60 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full after:bg-red-600 after:opacity-0 after:rounded-[inherit] after:transition-opacity hover:after:opacity-hover active:after:opacity-active focus:after:opacity-focus cursor-pointer",
+          "bg-white transition-colors border font-semibold text-2xl px-4 py-2 relative rounded-lg min-w-60 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full  after:opacity-0 after:rounded-[inherit] after:transition-opacity hover:after:opacity-hover active:after:opacity-active focus:after:opacity-focus cursor-pointer",
           {
-            "border-secondary text-secondary": activeType === "break",
-            "border-primary text-primary": activeType === "focus",
+            "border-secondary text-secondary after:bg-secondary":
+              activeType === "break",
+            "border-primary text-primary after:bg-primary":
+              activeType === "focus",
           }
         )}
       >
