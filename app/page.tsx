@@ -5,29 +5,30 @@ const Home = () => {
   return (
     <>
       <div className="space-y-8 ">
-        <div className="bg-accent text-neutral-light py-8">
+        <div className="-light py-8">
           <section
             id="hero"
-            className="font-inter max-w-7xl mx-auto p-4 space-y-8  rounded py-8 md:flex md:items-center md:gap-40 md:space-y-0 md:p-8"
+            className="font-inter max-w-7xl mx-auto p-4 space-y-4  rounded py-8"
           >
-            <Image
-              src="/images/logo.png"
-              width={160}
-              height={160}
-              alt=""
-              className="size-40 mx-auto md:order-2 md:size-60"
-            />
-            <div className="space-y-8">
-              <h1 className="text-center text-3xl font-extrabold md:text-left">
-                Grow with the Rhythm of Light
+            <div className="sm:flex sm:items-center sm:gap-4 sm:justify-center">
+              <Image
+                src="/images/logo.png"
+                width={160}
+                height={160}
+                alt=""
+                className="w-40 mx-auto sm:mx-0 "
+              />
+              <h1 className="font-inter text-center text-4xl font-extrabold">
+                Ever Dawn
               </h1>
-              <p className="text-sm">
-                Ever Dawn is a personal helper app crafted for mindful focus and
-                growth. Starting with spread-based learning rhythms, it gently
-                guidesyour day through clarity, rhythm, and intention -- like
-                the rise of every new dawn.
-              </p>
             </div>
+            <h2 className="text-center md:mt-8 text-2xl md:text-center font-medium">
+              Grow with the Rhythm of Light
+            </h2>
+            <p className="text-sm text-center">
+              A mindful helper crafted to guide your focus and growth. like the
+              steady rise of a new sun.
+            </p>
           </section>
         </div>
         <section className="rounded p-4 py-8 space-y-8 md:p-8 max-w-7xl mx-auto">
@@ -69,7 +70,7 @@ function Tool({
   return (
     <Link
       href={href}
-      className="interactable bg-white rounded-lg flex flex-col items-center p-4 space-y-4 shadow"
+      className="interactable bg-neutral-100 rounded-lg flex flex-col items-center p-4 space-y-4 shadow"
     >
       <Image src={imageSrc} alt="" className="size-20" width={80} height={80} />
       <h3 className="text-center font-medium">{title}</h3>
