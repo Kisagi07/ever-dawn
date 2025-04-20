@@ -153,6 +153,10 @@ const Page = () => {
     }
   }, []);
 
+  useEffect(() => {
+    document.title = `Ever Dawn - ${formatTime(timeLeft)}`;
+  }, [timeLeft]);
+
   return (
     <div className="bg-white w-full h-screen flex items-center justify-center flex-col gap-4">
       <BreadCrumb />
