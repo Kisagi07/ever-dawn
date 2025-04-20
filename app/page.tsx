@@ -70,7 +70,7 @@ function Tool({
   return (
     <Link
       href={href}
-      className="interactable bg-neutral-100 rounded-lg flex flex-col items-center p-4 space-y-4 shadow"
+      className="interactable bg-white rounded-lg flex flex-col items-center p-4 space-y-4 shadow"
     >
       <Image src={imageSrc} alt="" className="size-20" width={80} height={80} />
       <h3 className="text-center font-medium">{title}</h3>

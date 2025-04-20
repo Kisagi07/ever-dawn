@@ -32,8 +32,8 @@ const FloatingText = ({
   };
 
   return (
-    <div className="pt-3">
-      <div className="relative bg-white">
+    <div className="pt-3 text-sm">
+      <div className="relative ">
         <input
           id={name}
           name={name}
@@ -43,14 +43,12 @@ const FloatingText = ({
           value={internalValue}
           onChange={(e) => setInternalValue(e.target.value)}
           type="text"
-          className="border w-full peer border-outline rounded p-2 transition-all focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-medium"
+          className="border w-full peer border-outline rounded p-2 pt-5 pb-1 transition-all focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-medium"
         />
         <label
           onClick={() => inputRef.current?.focus()}
           htmlFor=""
-          className={` font-inter absolute left-4 top-1/2 -translate-y-1/2 block bg-inherit font-medium px-2 text-sm peer-focus:top-0 peer-focus:-translate-y-[10px] transition-all peer-focus:left-2 peer-focus:text-primary ${
-            hasValue ? " !top-0 !-translate-y-[10px] !left-2" : ""
-          }`}
+          className={`text-slate-700 font-inter absolute top-0 block bg-inherit text-sm px-2 peer-focus:text-primary`}
         >
           {label}
         </label>
