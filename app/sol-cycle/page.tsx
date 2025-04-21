@@ -7,6 +7,7 @@ import Tooltip from "../components/Tooltip";
 import clsx from "clsx";
 import StarSelect from "../components/StarSelect";
 import updateStar from "../libs/updateStar";
+import { useSearchParams } from "next/navigation";
 
 interface SetScheme {
   break: number;
@@ -14,11 +15,13 @@ interface SetScheme {
 }
 
 interface IteratingScheme {
-  type: "focus";
+  type: "focus" | "break";
   time: number;
 }
 
 const Page = () => {
+  const searchParams = useSearchParams();
+
   const [scheme, setScheme] = useState<SetScheme | IteratingScheme[]>({
     break: 5,
     focus: 25,
@@ -169,6 +172,28 @@ const Page = () => {
   useEffect(() => {
     if (Notification.permission === "default") {
       Notification.requestPermission();
+    }
+    const customScheme = searchParams.get("scheme");
+    if (customScheme) {
+      const parsedScheme = JSON.parse(customScheme) as {
+        focus: number;
+        break: number;
+      }[];
+      const generatedScheme: IteratingScheme[] = [];
+      parsedScheme.forEach((scheme) => {
+        generatedScheme.push({
+          type: "focus",
+          time: scheme.focus,
+        });
+        generatedScheme.push({
+          type: "break",
+          time: scheme.break,
+        });
+      });
+      setScheme(generatedScheme);
+      setTimeLeft(generatedScheme[0].time * 60);
+      setActiveType(generatedScheme[0].type);
+      newEndTime(generatedScheme[0].time);
     }
   }, []);
 

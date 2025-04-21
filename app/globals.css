@@ -48,4 +48,8 @@
   .interactable {
     @apply relative bg-neutral-200 after:content-[""] after:absolute after:top-0 after:left-0 after:w-full after:rounded-[inherit] after:h-full after:border-inherit after:bg-neutral-950 after:opacity-0 hover:after:opacity-[0.08] focus:after:opacity-[0.1] active:after:opacity-[0.16] after:transition-opacity;
   }
+
+  .interactable-red {
+    @apply relative after:content-[""] after:absolute after:top-0 after:left-0 after:w-full after:rounded-[inherit] after:h-full after:border-inherit after:bg-red-950 after:opacity-0 hover:after:opacity-[0.08] focus:after:opacity-[0.1] active:after:opacity-[0.16] after:transition-opacity;
+  }
 }
