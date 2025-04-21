@@ -88,7 +88,7 @@ const Page = () => {
 
   return (
     <div className="py-8">
-      <div className="bg-white rounded-lg space-y-8 p-4 py-8 md:p-8 max-w-7xl mx-auto">
+      <div className="bg-white shadow rounded space-y-8 p-4 py-8 md:p-8 max-w-7xl mx-auto">
         <BreadCrumb />
         <h2 className="font-cormorant font-semibold text-3xl">Rythm Rise</h2>
         <form

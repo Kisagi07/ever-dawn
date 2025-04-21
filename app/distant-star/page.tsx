@@ -8,7 +8,7 @@ import { toast } from "../components/Toast";
 import redis from "../upstash";
 import ActionFloatingMenu from "../components/ActionFloatingMenu";
 import Modal from "../components/Modal";
-import { Sarabun } from "next/font/google";
+import { Star } from "../components/Star";
 
 export default function Page() {
   const [stars, setStars] = useState<Star[]>([]);
@@ -185,7 +185,7 @@ export default function Page() {
   return (
     <>
       <div className="p-2 sm:p-4 md:p-8 space-y-4">
-        <section className="max-w-7xl bg-white shadow-lg rounded-lg md:p-8 p-4 mx-auto space-y-8">
+        <section className="max-w-7xl bg-white shadow rounded md:p-8 p-4 mx-auto space-y-8">
           <div className="space-y-4">
             <BreadCrumb />
             <p>Each hour lights the path ahead.</p>
@@ -207,10 +207,10 @@ export default function Page() {
             />
           </form>
         </section>
-        <section className="max-w-7xl bg-white shadow-lg rounded-lg md:p-8 p-4 mx-auto space-y-8">
+        <section className="max-w-7xl bg-white shadow rounded md:p-8 p-4 mx-auto space-y-8">
           <div className="space-y-4">
             <h2 className="font-bold text-xl">Your Sky</h2>
-            <p className="text-sm text-neutral-500">
+            <p className="text-sm text-slate-500">
               Every star here marks a promise to yourself.
             </p>
           </div>
@@ -243,7 +243,7 @@ export default function Page() {
       </div>
       {openAddTimeModal && (
         <Modal onClose={() => setOpenAddTimeModal(false)}>
-          <h3 className="font-medium text-xl border-b border-neutral-200">
+          <h3 className="font-medium text-xl border-b border-slate-200">
             Add Time
           </h3>
           <form className="space-y-4" onSubmit={handleAddMinuteSubmit}>
@@ -256,7 +256,7 @@ export default function Page() {
       )}
       {openTimeSpentCorrection && (
         <Modal onClose={() => setOpenTimeSpentCorrection(false)}>
-          <h3 className="font-medium text-xl border-b border-neutral-200">
+          <h3 className="font-medium text-xl border-b border-slate-200">
             Spent Minutes Correction
           </h3>
           <form
@@ -279,7 +279,7 @@ export default function Page() {
             <Button onClick={handleDeleteStar}>Yes</Button>
             <Button
               onClick={() => setOpenDeleteConfirmation(false)}
-              className="!bg-neutral-300 !text-neutral-600 after:!bg-neutral-950"
+              className="!bg-slate-300 !text-slate-600 after:!bg-slate-950"
             >
               Cancel
             </Button>
@@ -289,32 +289,3 @@ export default function Page() {
     </>
   );
 }
-
-const Star = ({
-  name,
-  targetHours,
-  spentHours,
-}: {
-  name: string;
-  targetHours: number;
-  spentHours: number;
-}) => {
-  const percentage = (spentHours / targetHours) * 100;
-  return (
-    <div className="bg-neutral-100 rounded-lg p-4 space-y-2">
-      <h3 className="font-medium">{name}</h3>
-      <div className="flex items-center gap-4">
-        <img src="/svgs/star-glow.svg" alt="Star Icon" className="size-10" />
-        <span>
-          {spentHours}h of {targetHours}h
-        </span>
-      </div>
-      <div className="h-2 bg-red-100 rounded-full">
-        <div
-          style={{ width: `${percentage}%` }}
-          className="h-2 bg-red-500 rounded-full"
-        ></div>
-      </div>
-    </div>
-  );
-};
