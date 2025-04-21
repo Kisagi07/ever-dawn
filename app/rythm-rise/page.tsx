@@ -7,6 +7,8 @@ import TimeInput from "@/app/components/TimeInput";
 import Time from "@/app/classes/Time";
 import { toast } from "../components/Toast";
 import BreadCrumb from "../components/BreadCrumb";
+import Link from "next/link";
+import { ArrowRightCircleIcon } from "@heroicons/react/24/outline";
 
 const Page = () => {
   const [generatedSessions, setGeneratedSessions] = useState<
@@ -112,20 +114,31 @@ const Page = () => {
           <Button type="submit">Calculate</Button>
         </form>
         {generatedSessions.length > 0 && (
-          <div className="flex flex-col gap-2">
-            <h3 className="font-cormorant font-medium text-2xl">
-              Generated Sessions
-            </h3>
-            <ul className="flex flex-wrap gap-2">
-              {generatedSessions.map((session) => (
-                <Session
-                  break={session.break}
-                  focus={session.focus}
-                  key={session.id}
-                />
-              ))}
-            </ul>
-          </div>
+          <>
+            <div className="flex flex-col gap-2">
+              <h3 className="font-cormorant font-medium text-2xl">
+                Generated Sessions
+              </h3>
+              <ul className="flex flex-wrap gap-2">
+                {generatedSessions.map((session) => (
+                  <Session
+                    break={session.break}
+                    focus={session.focus}
+                    key={session.id}
+                  />
+                ))}
+              </ul>
+            </div>
+            <Link
+              href={`/sol-cycle?scheme=${JSON.stringify(
+                generatedSessions.map(({ id, ...rest }) => ({ ...rest }))
+              )}`}
+              className="text-primary bg-red-100 px-4 py-2 pr-6 group rounded  shadow flex items-center gap-2 w-max interactable-red"
+            >
+              Open Scheme in Sol Cycle
+              <ArrowRightCircleIcon className="size-6 group-hover:translate-x-4 transition-transform" />
+            </Link>
+          </>
         )}
       </div>
     </div>
