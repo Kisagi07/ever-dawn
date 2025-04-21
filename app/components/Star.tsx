@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export const Star = ({
   name,
   targetHours,
@@ -14,7 +16,13 @@ export const Star = ({
     <div className={`bg-gray-100 shadow rounded p-4 space-y-2 ${className}`}>
       <h3 className="font-medium">{name}</h3>
       <div className="flex items-center gap-4">
-        <img src="/svgs/star-glow.svg" alt="Star Icon" className="size-10" />
+        <Image
+          src="/svgs/star-glow.svg"
+          alt="Star Icon"
+          className="size-10"
+          width={40}
+          height={40}
+        />
         <span>
           {spentHours}h of {targetHours}h
         </span>

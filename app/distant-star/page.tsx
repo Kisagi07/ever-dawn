@@ -3,7 +3,7 @@ import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import BreadCrumb from "../components/BreadCrumb";
 import Button from "../components/Button";
 import FloatingText from "../components/FloatingText";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import { toast } from "../components/Toast";
 import redis from "../upstash";
 import ActionFloatingMenu from "../components/ActionFloatingMenu";
@@ -62,7 +62,7 @@ export default function Page() {
     setStars((prev) => [...prev, data]);
     // store data to upstash
     try {
-      const result = await redis.set(`stars`, stars);
+      await redis.set(`stars`, stars);
       toast("The sky holds one more dream now.", "blue");
     } catch (error) {
       console.error(error);
@@ -93,7 +93,7 @@ export default function Page() {
     const starIndex = stars.findIndex((star) => star.name === activeActionStar);
     if (starIndex !== -1) {
       try {
-        let updated = [...stars];
+        const updated = [...stars];
         updated[starIndex].spentMinutes = minutes;
         await redis.set("stars", updated);
         setStars(updated);
@@ -124,7 +124,7 @@ export default function Page() {
     const starIndex = stars.findIndex((star) => star.name === activeActionStar);
     if (starIndex !== -1) {
       try {
-        let updated = [...stars];
+        const updated = [...stars];
         updated[starIndex].spentMinutes += minute;
         await redis.set("stars", updated);
         setStars(updated);
@@ -177,6 +177,18 @@ export default function Page() {
       toast("The star you wish to remove is not found.", "red");
     }
   };
+
+  const closeAddTimeModal = useCallback(() => {
+    setOpenAddTimeModal(false);
+  }, []);
+
+  const closeTimeCorrection = useCallback(() => {
+    setOpenTimeSpentCorrection(false);
+  }, []);
+
+  const closeDeleteConfirmation = useCallback(() => {
+    setOpenDeleteConfirmation(false);
+  }, []);
 
   useEffect(() => {
     getStars();
@@ -242,7 +254,7 @@ export default function Page() {
         </section>
       </div>
       {openAddTimeModal && (
-        <Modal onClose={() => setOpenAddTimeModal(false)}>
+        <Modal onClose={closeAddTimeModal}>
           <h3 className="font-medium text-xl border-b border-slate-200">
             Add Time
           </h3>
@@ -271,14 +283,14 @@ export default function Page() {
         </Modal>
       )}
       {openDeleteConfirmation && (
-        <Modal onClose={() => setOpenDeleteConfirmation(false)}>
+        <Modal onClose={closeTimeCorrection}>
           <h3 className="font-medium text-xl ">
             Delete Your {activeActionStar} Star ?
           </h3>
           <div className="flex gap-2 justify-end">
             <Button onClick={handleDeleteStar}>Yes</Button>
             <Button
-              onClick={() => setOpenDeleteConfirmation(false)}
+              onClick={closeDeleteConfirmation}
               className="!bg-slate-300 !text-slate-600 after:!bg-slate-950"
             >
               Cancel

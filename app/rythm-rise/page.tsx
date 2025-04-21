@@ -130,9 +130,7 @@ const Page = () => {
               </ul>
             </div>
             <Link
-              href={`/sol-cycle?scheme=${JSON.stringify(
-                generatedSessions.map(({ id, ...rest }) => ({ ...rest }))
-              )}`}
+              href={`/sol-cycle?scheme=${JSON.stringify(generatedSessions)}`}
               className="text-primary bg-red-100 px-4 py-2 pr-6 group rounded  shadow flex items-center gap-2 w-max interactable-red"
             >
               Open Scheme in Sol Cycle

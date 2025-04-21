@@ -17,8 +17,6 @@ const FloatingText = ({
   );
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const hasValue = internalValue.length > 0;
-
   const handleOnFocus = (e: ChangeEvent<HTMLInputElement>) => {
     // remove endof value from interval value
     const value = e.target.value.replace(endOfValue, "").trim();

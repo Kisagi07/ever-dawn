@@ -4,7 +4,7 @@ import {
   TrashIcon,
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
-import { MouseEvent, ReactNode, useEffect, useRef, useState } from "react";
+import { MouseEvent, ReactNode, useRef, useState } from "react";
 import Tooltip from "./Tooltip";
 
 interface ActionFloatingMenuProps {
@@ -24,7 +24,7 @@ const ActionFloatingMenu = ({
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handleClicked = (e: MouseEvent<HTMLDivElement>) => {
-    const handleAutoClose = (e: globalThis.MouseEvent) => {
+    const handleAutoClose = () => {
       setPosition({ left: 0, top: 0 });
       document.removeEventListener("click", handleAutoClose);
     };

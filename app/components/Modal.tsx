@@ -1,7 +1,4 @@
-import { FormEvent, ReactNode, useEffect, useRef } from "react";
-import FloatingText from "./FloatingText";
-import Button from "./Button";
-import { toast } from "./Toast";
+import { ReactNode, useCallback, useEffect, useRef } from "react";
 
 interface ModalProps {
   onClose: () => void;
@@ -11,12 +8,15 @@ interface ModalProps {
 const Modal = ({ onClose, children }: ModalProps) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
-  const handleAutoClose = (e: MouseEvent) => {
-    if (!modalRef.current!.contains(e.target as Node)) {
-      onClose();
-      document.body.style.overflow = "";
-    }
-  };
+  const handleAutoClose = useCallback(
+    (e: MouseEvent) => {
+      if (!modalRef.current!.contains(e.target as Node)) {
+        onClose();
+        document.body.style.overflow = "";
+      }
+    },
+    [onClose]
+  );
 
   useEffect(() => {
     document.addEventListener("click", handleAutoClose);
@@ -25,7 +25,7 @@ const Modal = ({ onClose, children }: ModalProps) => {
     return () => {
       document.removeEventListener("click", handleAutoClose);
     };
-  }, []);
+  }, [handleAutoClose]);
   return (
     <div className="fixed top-0 left-0 w-full h-full flex items-center px-2 bg-black/70 justify-center">
       <div

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import BreadCrumb from "../components/BreadCrumb";
 import { toast } from "../components/Toast";
 import Tooltip from "../components/Tooltip";
@@ -44,23 +44,124 @@ const Page = () => {
     )}`;
   };
 
-  const noSchemeRemaining = () => {
-    sendNotification("Good Job! You have done your sol session.");
-  };
-
   const newEndTime = (minute: number) => {
     const newEndTime = Date.now() + minute * 60 * 1000;
     setEndTime(newEndTime);
   };
 
-  const addMinuteToStar = (minute: number) => {
-    if (starSelected) {
-      const newStar = { ...starSelected };
-      newStar.spentMinutes += minute;
-      setStarSelected(newStar);
-      updateStar(newStar);
-    }
+  const addMinuteToStar = useCallback(
+    (minute: number) => {
+      if (starSelected) {
+        const newStar = { ...starSelected };
+        newStar.spentMinutes += minute;
+        setStarSelected(newStar);
+        updateStar(newStar);
+      }
+    },
+    [starSelected]
+  );
+
+  const handleStart = () => {
+    const newEndTime = Date.now() + timeLeft * 1000;
+    setEndTime(newEndTime);
+    setIsRunning(true);
   };
+
+  const handlePause = () => {
+    setIsRunning(false);
+    if (endTime) {
+      const remaining = Math.round((endTime - Date.now()) / 1000);
+      setTimeLeft(remaining > 0 ? remaining : 0);
+    }
+    setEndTime(null);
+  };
+
+  const sendNotification = useCallback(
+    (text?: string) => {
+      if (document.visibilityState === "visible") {
+        toast("Time's up!", "blue");
+        return;
+      } else {
+        if (Notification.permission === "granted") {
+          new Notification("Time's up!", {
+            body: text
+              ? text
+              : activeType === "focus"
+              ? "Take a break!"
+              : "Back to work!",
+            icon: "/notification-icon.png",
+          });
+        } else {
+          toast("Please allow notification in your browser settings.", "blue");
+        }
+      }
+    },
+    [activeType]
+  );
+
+  const noSchemeRemaining = useCallback(() => {
+    sendNotification("Good Job! You have done your sol session.");
+  }, [sendNotification]);
+
+  const handleReset = () => {
+    setIsRunning(false);
+    if (!Array.isArray(scheme)) {
+      switch (activeType) {
+        case "focus":
+          setTimeLeft(scheme.focus * 60);
+          break;
+        case "break":
+          setTimeLeft(scheme.break * 60);
+          break;
+      }
+    } else {
+      setTimeLeft(scheme[0].time * 60);
+      setActiveType(scheme[0].type);
+    }
+    setEndTime(null);
+  };
+
+  useEffect(() => {
+    if (Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+    const customScheme = searchParams.get("scheme");
+    if (customScheme) {
+      const parsedScheme = JSON.parse(customScheme) as {
+        focus: number;
+        break: number;
+      }[];
+      const generatedScheme: IteratingScheme[] = [];
+      parsedScheme.forEach((scheme) => {
+        generatedScheme.push({
+          type: "focus",
+          time: scheme.focus,
+        });
+        generatedScheme.push({
+          type: "break",
+          time: scheme.break,
+        });
+      });
+      setScheme(generatedScheme);
+      setTimeLeft(generatedScheme[0].time * 60);
+      setActiveType(generatedScheme[0].type);
+      newEndTime(generatedScheme[0].time);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    document.title = `Ever Dawn - ${formatTime(timeLeft)}`;
+  }, [timeLeft]);
+
+  useEffect(() => {
+    if (starSelected) {
+      if (starSelectedPrevious.current) {
+        updateStar(starSelected);
+      } else {
+        starSelectedPrevious.current = starSelected;
+      }
+    }
+  }, [starSelected]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -114,102 +215,15 @@ const Page = () => {
     }
 
     return () => clearInterval(timer);
-  }, [isRunning, endTime]);
-
-  const handleStart = () => {
-    const newEndTime = Date.now() + timeLeft * 1000;
-    setEndTime(newEndTime);
-    setIsRunning(true);
-  };
-
-  const handlePause = () => {
-    setIsRunning(false);
-    if (endTime) {
-      const remaining = Math.round((endTime - Date.now()) / 1000);
-      setTimeLeft(remaining > 0 ? remaining : 0);
-    }
-    setEndTime(null);
-  };
-
-  const sendNotification = (text?: string) => {
-    if (document.visibilityState === "visible") {
-      toast("Time's up!", "blue");
-      return;
-    } else {
-      if (Notification.permission === "granted") {
-        new Notification("Time's up!", {
-          body: text
-            ? text
-            : activeType === "focus"
-            ? "Take a break!"
-            : "Back to work!",
-          icon: "/notification-icon.png",
-        });
-      } else {
-        toast("Please allow notification in your browser settings.", "blue");
-      }
-    }
-  };
-
-  const handleReset = () => {
-    setIsRunning(false);
-    if (!Array.isArray(scheme)) {
-      switch (activeType) {
-        case "focus":
-          setTimeLeft(scheme.focus * 60);
-          break;
-        case "break":
-          setTimeLeft(scheme.break * 60);
-          break;
-      }
-    } else {
-      setTimeLeft(scheme[0].time * 60);
-      setActiveType(scheme[0].type);
-    }
-    setEndTime(null);
-  };
-
-  useEffect(() => {
-    if (Notification.permission === "default") {
-      Notification.requestPermission();
-    }
-    const customScheme = searchParams.get("scheme");
-    if (customScheme) {
-      const parsedScheme = JSON.parse(customScheme) as {
-        focus: number;
-        break: number;
-      }[];
-      const generatedScheme: IteratingScheme[] = [];
-      parsedScheme.forEach((scheme) => {
-        generatedScheme.push({
-          type: "focus",
-          time: scheme.focus,
-        });
-        generatedScheme.push({
-          type: "break",
-          time: scheme.break,
-        });
-      });
-      setScheme(generatedScheme);
-      setTimeLeft(generatedScheme[0].time * 60);
-      setActiveType(generatedScheme[0].type);
-      newEndTime(generatedScheme[0].time);
-    }
-  }, []);
-
-  useEffect(() => {
-    document.title = `Ever Dawn - ${formatTime(timeLeft)}`;
-  }, [timeLeft]);
-
-  useEffect(() => {
-    if (starSelected) {
-      if (starSelectedPrevious.current) {
-        updateStar(starSelected);
-      } else {
-        starSelectedPrevious.current = starSelected;
-      }
-    }
-  }, [starSelected]);
+  }, [
+    isRunning,
+    endTime,
+    activeType,
+    addMinuteToStar,
+    noSchemeRemaining,
+    scheme,
+    sendNotification,
+  ]);
 
   return (
     <div className="bg-white w-full h-screen flex items-center justify-center flex-col gap-4">
