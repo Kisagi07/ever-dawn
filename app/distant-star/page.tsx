@@ -8,7 +8,7 @@ import { toast } from "../components/Toast";
 import redis from "../upstash";
 import ActionFloatingMenu from "../components/ActionFloatingMenu";
 import Modal from "../components/Modal";
-import { Sarabun } from "next/font/google";
+import { Star } from "../components/Star";
 
 export default function Page() {
   const [stars, setStars] = useState<Star[]>([]);
@@ -289,32 +289,3 @@ export default function Page() {
     </>
   );
 }
-
-const Star = ({
-  name,
-  targetHours,
-  spentHours,
-}: {
-  name: string;
-  targetHours: number;
-  spentHours: number;
-}) => {
-  const percentage = (spentHours / targetHours) * 100;
-  return (
-    <div className="bg-gray-100 shadow rounded p-4 space-y-2">
-      <h3 className="font-medium">{name}</h3>
-      <div className="flex items-center gap-4">
-        <img src="/svgs/star-glow.svg" alt="Star Icon" className="size-10" />
-        <span>
-          {spentHours}h of {targetHours}h
-        </span>
-      </div>
-      <div className="h-2 bg-red-100 rounded-full">
-        <div
-          style={{ width: `${percentage}%` }}
-          className="h-2 bg-red-500 rounded-full"
-        ></div>
-      </div>
-    </div>
-  );
-};

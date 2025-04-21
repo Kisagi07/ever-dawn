@@ -5,6 +5,7 @@ import BreadCrumb from "../components/BreadCrumb";
 import { toast } from "../components/Toast";
 import Tooltip from "../components/Tooltip";
 import clsx from "clsx";
+import StarSelect from "../components/StarSelect";
 
 interface SetScheme {
   break: number;
@@ -25,6 +26,8 @@ const Page = () => {
   const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [isRunning, setIsRunning] = useState(false);
   const [endTime, setEndTime] = useState<number | null>(null);
+  const [openStarSelect, setOpenStarSelect] = useState(false);
+  const [starSelected, setStarSelected] = useState<Star | null>(null);
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -160,14 +163,24 @@ const Page = () => {
   return (
     <div className="bg-white w-full h-screen flex items-center justify-center flex-col gap-4">
       <BreadCrumb />
-      <p
-        className={clsx("font-medium transition-colors", {
-          "text-secondary": activeType === "break",
-          "text-primary": activeType === "focus",
-        })}
-      >
-        Drawing
-      </p>
+      <div className="relative">
+        <Tooltip text="Change Active Star">
+          <button
+            onClick={() => setOpenStarSelect(!openStarSelect)}
+            className={clsx("font-medium transition-colors cursor-pointer")}
+          >
+            {starSelected ? starSelected.name : "Select Star"}
+          </button>
+        </Tooltip>
+        {openStarSelect && (
+          <StarSelect
+            starSelected={(star) => {
+              setStarSelected(star);
+              setOpenStarSelect(false);
+            }}
+          />
+        )}
+      </div>
       <h2
         className={clsx(
           "text-7xl transition-colors font-bold font-jetbrains-mono",
