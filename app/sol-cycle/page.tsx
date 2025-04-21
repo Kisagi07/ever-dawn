@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import BreadCrumb from "../components/BreadCrumb";
 import { toast } from "../components/Toast";
 import Tooltip from "../components/Tooltip";
 import clsx from "clsx";
 import StarSelect from "../components/StarSelect";
+import updateStar from "../libs/updateStar";
 
 interface SetScheme {
   break: number;
@@ -29,6 +30,8 @@ const Page = () => {
   const [openStarSelect, setOpenStarSelect] = useState(false);
   const [starSelected, setStarSelected] = useState<Star | null>(null);
 
+  const starSelectedPrevious = useRef<Star | null>(null);
+
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -47,6 +50,15 @@ const Page = () => {
     setEndTime(newEndTime);
   };
 
+  const addMinuteToStar = (minute: number) => {
+    if (starSelected) {
+      const newStar = { ...starSelected };
+      newStar.spentMinutes += minute;
+      setStarSelected(newStar);
+      updateStar(newStar);
+    }
+  };
+
   useEffect(() => {
     let timer: NodeJS.Timeout;
 
@@ -62,6 +74,7 @@ const Page = () => {
               setActiveType("break");
               setTimeLeft(scheme.break * 60);
               newEndTime(scheme.break);
+              addMinuteToStar(scheme.focus);
             } else {
               setActiveType("focus");
               setTimeLeft(scheme.focus * 60);
@@ -71,7 +84,10 @@ const Page = () => {
             const newScheme = [...scheme];
             if (newScheme.length > 0) {
               // remove the first element from the array
-              newScheme.shift();
+              const completedSession = newScheme.shift();
+              if (completedSession && completedSession.type === "focus") {
+                addMinuteToStar(completedSession.time);
+              }
               const nextScheme = newScheme.shift();
               if (nextScheme) {
                 setActiveType(nextScheme.type);
@@ -159,6 +175,16 @@ const Page = () => {
   useEffect(() => {
     document.title = `Ever Dawn - ${formatTime(timeLeft)}`;
   }, [timeLeft]);
+
+  useEffect(() => {
+    if (starSelected) {
+      if (starSelectedPrevious.current) {
+        updateStar(starSelected);
+      } else {
+        starSelectedPrevious.current = starSelected;
+      }
+    }
+  }, [starSelected]);
 
   return (
     <div className="bg-white w-full h-screen flex items-center justify-center flex-col gap-4">
