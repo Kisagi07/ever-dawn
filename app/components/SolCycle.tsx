@@ -75,6 +75,12 @@ const SolCycle = () => {
     return { completedSession, nextSession };
   };
 
+  const playSound = () => {
+    const audio = new Audio("/sounds/ene-goshujin.mp3");
+    audio.volume = 0.2;
+    audio.play();
+  };
+
   const switchDefaultScheme = (type: "break" | "focus") => {
     setActiveType(type);
     setTimeLeft((scheme as SetScheme)[type] * 60);
@@ -83,6 +89,7 @@ const SolCycle = () => {
 
   const handleSchemeCompletion = (skipStarAdd: boolean = false) => {
     sendNotification();
+    playSound();
     if (!Array.isArray(scheme)) {
       if (activeType === "focus") {
         switchDefaultScheme("break");
