@@ -61,79 +61,6 @@ const SolCycle = () => {
     [starSelected]
   );
 
-  const stopPomodoro = () => {
-    noSchemeRemaining();
-    setIsRunning(false);
-    setEndTime(null);
-  };
-
-  const getTheNextIterateScheme = () => {
-    const newScheme = [...(scheme as IteratingScheme[])];
-    const completedSession = newScheme.shift();
-    const nextSession = newScheme[0];
-    setScheme(newScheme);
-    return { completedSession, nextSession };
-  };
-
-  const playSound = () => {
-    const audio = new Audio("/sounds/ene-goshujin.mp3");
-    audio.volume = 0.2;
-    audio.play();
-  };
-
-  const switchDefaultScheme = (type: "break" | "focus") => {
-    setActiveType(type);
-    setTimeLeft((scheme as SetScheme)[type] * 60);
-    newEndTime((scheme as SetScheme)[type]);
-  };
-
-  const handleSchemeCompletion = (skipStarAdd: boolean = false) => {
-    sendNotification();
-    playSound();
-    if (!Array.isArray(scheme)) {
-      if (activeType === "focus") {
-        switchDefaultScheme("break");
-        if (skipStarAdd) {
-          addMinuteToStar(scheme.focus);
-        }
-      } else {
-        switchDefaultScheme("focus");
-      }
-    } else {
-      const { completedSession, nextSession } = getTheNextIterateScheme();
-      // remove the first element from the array
-      if (
-        completedSession &&
-        completedSession.type === "focus" &&
-        !skipStarAdd
-      ) {
-        addMinuteToStar(completedSession.time);
-      }
-      if (nextSession) {
-        setActiveType(nextSession.type);
-        setTimeLeft(nextSession.time * 60);
-        newEndTime(nextSession.time);
-      } else {
-        stopPomodoro();
-      }
-    }
-  };
-
-  const handleStart = () => {
-    const newEndTime = Date.now() + timeLeft * 1000;
-    setEndTime(newEndTime);
-    setIsRunning(true);
-  };
-
-  const handlePause = () => {
-    setIsRunning(false);
-    if (endTime) {
-      const remaining = Math.round((endTime - Date.now()) / 1000);
-      setTimeLeft(remaining > 0 ? remaining : 0);
-    }
-    setEndTime(null);
-  };
-
   const sendNotification = useCallback(
     (text?: string) => {
       if (document.visibilityState === "visible") {
@@ -160,6 +87,93 @@ const SolCycle = () => {
   const noSchemeRemaining = useCallback(() => {
     sendNotification("Good Job! You have done your sol session.");
   }, [sendNotification]);
+
+  const stopPomodoro = useCallback(() => {
+    noSchemeRemaining();
+    setIsRunning(false);
+    setEndTime(null);
+  }, [noSchemeRemaining]);
+
+  const getTheNextIterateScheme = useCallback(() => {
+    const newScheme = [...(scheme as IteratingScheme[])];
+    const completedSession = newScheme.shift();
+    const nextSession = newScheme[0];
+    setScheme(newScheme);
+    return { completedSession, nextSession };
+  }, [scheme]);
+
+  const playSound = () => {
+    const audio = new Audio("/sounds/ene-goshujin.mp3");
+    audio.volume = 0.2;
+    audio.play();
+  };
+
+  const switchDefaultScheme = useCallback(
+    (type: "break" | "focus") => {
+      setActiveType(type);
+      setTimeLeft((scheme as SetScheme)[type] * 60);
+      newEndTime((scheme as SetScheme)[type]);
+    },
+    [scheme]
+  );
+
+  const handleSchemeCompletion = useCallback(
+    (skipStarAdd: boolean = false) => {
+      sendNotification();
+      playSound();
+      if (!Array.isArray(scheme)) {
+        if (activeType === "focus") {
+          switchDefaultScheme("break");
+          if (skipStarAdd) {
+            addMinuteToStar(scheme.focus);
+          }
+        } else {
+          switchDefaultScheme("focus");
+        }
+      } else {
+        const { completedSession, nextSession } = getTheNextIterateScheme();
+        // remove the first element from the array
+        if (
+          completedSession &&
+          completedSession.type === "focus" &&
+          !skipStarAdd
+        ) {
+          addMinuteToStar(completedSession.time);
+        }
+        if (nextSession) {
+          setActiveType(nextSession.type);
+          setTimeLeft(nextSession.time * 60);
+          newEndTime(nextSession.time);
+        } else {
+          stopPomodoro();
+        }
+      }
+    },
+    [
+      activeType,
+      addMinuteToStar,
+      getTheNextIterateScheme,
+      scheme,
+      sendNotification,
+      stopPomodoro,
+      switchDefaultScheme,
+    ]
+  );
+
+  const handleStart = () => {
+    const newEndTime = Date.now() + timeLeft * 1000;
+    setEndTime(newEndTime);
+    setIsRunning(true);
+  };
+
+  const handlePause = () => {
+    setIsRunning(false);
+    if (endTime) {
+      const remaining = Math.round((endTime - Date.now()) / 1000);
+      setTimeLeft(remaining > 0 ? remaining : 0);
+    }
+    setEndTime(null);
+  };
 
   const handleReset = () => {
     setIsRunning(false);
@@ -246,6 +260,7 @@ const SolCycle = () => {
     noSchemeRemaining,
     scheme,
     sendNotification,
+    handleSchemeCompletion,
   ]);
 
   return (
