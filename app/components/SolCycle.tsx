@@ -61,6 +61,57 @@ const SolCycle = () => {
     [starSelected]
   );
 
+  const stopPomodoro = () => {
+    noSchemeRemaining();
+    setIsRunning(false);
+    setEndTime(null);
+  };
+
+  const getTheNextIterateScheme = () => {
+    const newScheme = [...(scheme as IteratingScheme[])];
+    const completedSession = newScheme.shift();
+    const nextSession = newScheme[0];
+    setScheme(newScheme);
+    return { completedSession, nextSession };
+  };
+
+  const switchDefaultScheme = (type: "break" | "focus") => {
+    setActiveType(type);
+    setTimeLeft((scheme as SetScheme)[type] * 60);
+    newEndTime((scheme as SetScheme)[type]);
+  };
+
+  const handleSchemeCompletion = (skipStarAdd: boolean = false) => {
+    sendNotification();
+    if (!Array.isArray(scheme)) {
+      if (activeType === "focus") {
+        switchDefaultScheme("break");
+        if (skipStarAdd) {
+          addMinuteToStar(scheme.focus);
+        }
+      } else {
+        switchDefaultScheme("focus");
+      }
+    } else {
+      const { completedSession, nextSession } = getTheNextIterateScheme();
+      // remove the first element from the array
+      if (
+        completedSession &&
+        completedSession.type === "focus" &&
+        !skipStarAdd
+      ) {
+        addMinuteToStar(completedSession.time);
+      }
+      if (nextSession) {
+        setActiveType(nextSession.type);
+        setTimeLeft(nextSession.time * 60);
+        newEndTime(nextSession.time);
+      } else {
+        stopPomodoro();
+      }
+    }
+  };
+
   const handleStart = () => {
     const newEndTime = Date.now() + timeLeft * 1000;
     setEndTime(newEndTime);
@@ -172,42 +223,7 @@ const SolCycle = () => {
 
         if (newTimeLeft <= 0) {
           clearInterval(timer);
-          sendNotification();
-          if (!Array.isArray(scheme)) {
-            if (activeType === "focus") {
-              setActiveType("break");
-              setTimeLeft(scheme.break * 60);
-              newEndTime(scheme.break);
-              addMinuteToStar(scheme.focus);
-            } else {
-              setActiveType("focus");
-              setTimeLeft(scheme.focus * 60);
-              newEndTime(scheme.focus);
-            }
-          } else {
-            const newScheme = [...scheme];
-            if (newScheme.length > 0) {
-              // remove the first element from the array
-              const completedSession = newScheme.shift();
-              if (completedSession && completedSession.type === "focus") {
-                addMinuteToStar(completedSession.time);
-              }
-              const nextScheme = newScheme.shift();
-              if (nextScheme) {
-                setActiveType(nextScheme.type);
-                setTimeLeft(nextScheme.time * 60);
-                newEndTime(nextScheme.time);
-              } else {
-                noSchemeRemaining();
-                setIsRunning(false);
-                setEndTime(null);
-              }
-            } else {
-              noSchemeRemaining();
-              setIsRunning(false);
-              setEndTime(null);
-            }
-          }
+          handleSchemeCompletion();
         } else {
           setTimeLeft(newTimeLeft);
         }
@@ -301,26 +317,7 @@ const SolCycle = () => {
       <Tooltip text={`Switch to ${activeType === "focus" ? "break" : "focus"}`}>
         <button
           disabled={isRunning}
-          onClick={() => {
-            if (Array.isArray(scheme)) {
-              const newScheme = [...scheme];
-              // remove current scheme
-              newScheme.shift();
-              const nextScheme = newScheme.shift();
-              if (nextScheme) {
-                setActiveType(nextScheme.type);
-                setTimeLeft(nextScheme.time * 60);
-              } else {
-                noSchemeRemaining();
-                setIsRunning(false);
-              }
-            } else {
-              setActiveType(activeType === "focus" ? "break" : "focus");
-              setTimeLeft(
-                (activeType === "focus" ? scheme.break : scheme.focus) * 60
-              );
-            }
-          }}
+          onClick={() => handleSchemeCompletion(true)}
           className="text-xl cursor-pointer hover:text-black transition-colors font-medium text-neutral-400 capitalize"
         >
           {activeType}
