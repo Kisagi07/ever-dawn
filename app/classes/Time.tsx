@@ -74,6 +74,10 @@ class Time {
       minuteDifference++;
       if (alterMinutes === 60) {
         alterMinutes = 0;
+        hourDifference--; // Adjust hour difference when minutes wrap around
+        if (hourDifference < 0) {
+          hourDifference = 23; // Handle negative hour difference
+        }
       }
     }
     // return the hours and minutes difference
