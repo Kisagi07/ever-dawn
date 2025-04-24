@@ -57,6 +57,8 @@ const Page = () => {
 
     // Calculate pomodoro schedule
     const difference = hourStart.getDifference(hourEnd);
+    console.log(difference);
+
     const totalFreeTime = difference.hours * 60 + difference.minutes;
     const totalLearnTime = (totalFreeTime * learnPercentage) / 100;
     const totalSessions = Math.floor(totalLearnTime / maxFocus);
