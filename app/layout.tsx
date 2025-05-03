@@ -29,7 +29,7 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${jetBrainsMono.variable} antialiased`}
       >
-        <main className="white w-full min-h-screen bg-gray-100 font-inter">
+        <main className="white w-full min-h-screen bg-neutral-50 font-inter">
           <ToastProvider>{children}</ToastProvider>
         </main>
       </body>

@@ -13,4 +13,13 @@ const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
 ];
 
+eslintConfig.push({
+  rules: {
+    "max-lines": [
+      "warn",
+      { max: 300, skipBlankLines: true, skipComments: true },
+    ],
+  },
+});
+
 export default eslintConfig;
