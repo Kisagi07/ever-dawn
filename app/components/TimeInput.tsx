@@ -19,7 +19,7 @@ export default function TimeInput({
     const input = e.target;
     let value = input.value;
 
-    const usePrevousValue = () => {
+    const applyPreviousValue = () => {
       input.value = previousTimeValue.current ? previousTimeValue.current : "";
       value = input.value;
     };
@@ -27,17 +27,17 @@ export default function TimeInput({
     if (value.length < 3) {
       const hourValue = Number(value.slice(0, 2));
       if (hourValue > 23) {
-        usePrevousValue();
+        applyPreviousValue();
       }
     } else {
       const [minuteValue, secondValue] = value.slice(5).split(" : ");
       if (secondValue) {
         if (Number(secondValue) > 60) {
-          usePrevousValue();
+          applyPreviousValue();
         }
       } else {
         if (Number(minuteValue) > 60) {
-          usePrevousValue();
+          applyPreviousValue();
         }
       }
     }
@@ -64,8 +64,7 @@ export default function TimeInput({
     if (e.key === "ArrowLeft") {
       e.preventDefault();
       const input = e.currentTarget;
-      const [hourValue, minuteValue, secondValue] =
-        e.currentTarget.value.split(" : ");
+      const [hourValue, minuteValue] = e.currentTarget.value.split(" : ");
       if (!minuteValue || minuteValue.length < 2) {
         const newValue = ``;
         input.value = newValue;

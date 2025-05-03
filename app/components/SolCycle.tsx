@@ -8,16 +8,9 @@ import clsx from "clsx";
 import StarSelect from "../components/StarSelect";
 import updateStar from "../libs/updateStar";
 import { useSearchParams } from "next/navigation";
-
-interface SetScheme {
-  break: number;
-  focus: number;
-}
-
-interface IteratingScheme {
-  type: "focus" | "break";
-  time: number;
-}
+import playSound from "@/utils/playSound";
+import formatTime from "@/utils/formatTime";
+import SkipSession from "@/components/pages/sol-cycle/SkipSession";
 
 const SolCycle = () => {
   const searchParams = useSearchParams();
@@ -34,15 +27,6 @@ const SolCycle = () => {
   const [starSelected, setStarSelected] = useState<Star | null>(null);
 
   const starSelectedPrevious = useRef<Star | null>(null);
-
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${String(minutes).padStart(2, "0")}:${String(secs).padStart(
-      2,
-      "0"
-    )}`;
-  };
 
   const newEndTime = (minute: number) => {
     const newEndTime = Date.now() + minute * 60 * 1000;
@@ -69,11 +53,7 @@ const SolCycle = () => {
       } else {
         if (Notification.permission === "granted") {
           new Notification("Time's up!", {
-            body: text
-              ? text
-              : activeType === "focus"
-              ? "Take a break!"
-              : "Back to work!",
+            body: text ? text : activeType === "focus" ? "Take a break!" : "Back to work!",
             icon: "/notification-icon.png",
           });
         } else {
@@ -102,12 +82,6 @@ const SolCycle = () => {
     return { completedSession, nextSession };
   }, [scheme]);
 
-  const playSound = () => {
-    const audio = new Audio("/sounds/ene-goshujin.mp3");
-    audio.volume = 0.2;
-    audio.play();
-  };
-
   const switchDefaultScheme = useCallback(
     (type: "break" | "focus") => {
       setActiveType(type);
@@ -133,11 +107,7 @@ const SolCycle = () => {
       } else {
         const { completedSession, nextSession } = getTheNextIterateScheme();
         // remove the first element from the array
-        if (
-          completedSession &&
-          completedSession.type === "focus" &&
-          !skipStarAdd
-        ) {
+        if (completedSession && completedSession.type === "focus" && !skipStarAdd) {
           addMinuteToStar(completedSession.time);
         }
         if (nextSession) {
@@ -149,15 +119,7 @@ const SolCycle = () => {
         }
       }
     },
-    [
-      activeType,
-      addMinuteToStar,
-      getTheNextIterateScheme,
-      scheme,
-      sendNotification,
-      stopPomodoro,
-      switchDefaultScheme,
-    ]
+    [activeType, addMinuteToStar, getTheNextIterateScheme, scheme, sendNotification, stopPomodoro, switchDefaultScheme]
   );
 
   const handleStart = () => {
@@ -252,26 +214,14 @@ const SolCycle = () => {
     }
 
     return () => clearInterval(timer);
-  }, [
-    isRunning,
-    endTime,
-    activeType,
-    addMinuteToStar,
-    noSchemeRemaining,
-    scheme,
-    sendNotification,
-    handleSchemeCompletion,
-  ]);
+  }, [isRunning, endTime, activeType, addMinuteToStar, noSchemeRemaining, scheme, sendNotification, handleSchemeCompletion]);
 
   return (
     <div className="bg-white w-full h-screen flex items-center justify-center flex-col gap-4">
       <BreadCrumb />
       <div className="relative">
         <Tooltip text="Change Active Star">
-          <button
-            onClick={() => setOpenStarSelect(!openStarSelect)}
-            className={clsx("font-medium transition-colors cursor-pointer")}
-          >
+          <button onClick={() => setOpenStarSelect(!openStarSelect)} className={clsx("font-medium transition-colors cursor-pointer")}>
             {starSelected ? starSelected.name : "Select Star"}
           </button>
         </Tooltip>
@@ -285,13 +235,10 @@ const SolCycle = () => {
         )}
       </div>
       <h2
-        className={clsx(
-          "text-7xl transition-colors font-bold font-jetbrains-mono",
-          {
-            "text-blue-500": activeType === "break",
-            "text-red-500": activeType === "focus",
-          }
-        )}
+        className={clsx("text-7xl transition-colors font-bold font-jetbrains-mono", {
+          "text-blue-500": activeType === "break",
+          "text-red-500": activeType === "focus",
+        })}
       >
         {formatTime(timeLeft)}
       </h2>
@@ -327,24 +274,14 @@ const SolCycle = () => {
         className={clsx(
           "bg-white transition-colors border font-semibold text-2xl px-4 py-2 relative rounded-lg min-w-60 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full  after:opacity-0 after:rounded-[inherit] after:transition-opacity hover:after:opacity-hover active:after:opacity-active focus:after:opacity-focus cursor-pointer",
           {
-            "border-blue-500 text-blue-500 after:bg-blue-500":
-              activeType === "break",
-            "border-red-500 text-red-500 after:bg-red-500":
-              activeType === "focus",
+            "border-blue-500 text-blue-500 after:bg-blue-500": activeType === "break",
+            "border-red-500 text-red-500 after:bg-red-500": activeType === "focus",
           }
         )}
       >
         Reset
       </button>
-      <Tooltip text={`Switch to ${activeType === "focus" ? "break" : "focus"}`}>
-        <button
-          disabled={isRunning}
-          onClick={() => handleSchemeCompletion(true)}
-          className="text-xl cursor-pointer hover:text-black transition-colors font-medium text-neutral-400 capitalize"
-        >
-          {activeType}
-        </button>
-      </Tooltip>
+      <SkipSession activeType={activeType} handleSchemeCompletion={handleSchemeCompletion} isRunning={isRunning} />
     </div>
   );
 };
