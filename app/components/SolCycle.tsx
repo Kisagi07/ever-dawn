@@ -288,8 +288,8 @@ const SolCycle = () => {
         className={clsx(
           "text-7xl transition-colors font-bold font-jetbrains-mono",
           {
-            "text-secondary": activeType === "break",
-            "text-primary": activeType === "focus",
+            "text-blue-500": activeType === "break",
+            "text-red-500": activeType === "focus",
           }
         )}
       >
@@ -301,8 +301,8 @@ const SolCycle = () => {
           className={clsx(
             " text-white transition-colors font-semibold text-2xl px-4 py-2 relative rounded-lg min-w-60 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full after:bg-black after:opacity-0 after:rounded-[inherit] after:transition-opacity hover:after:opacity-hover active:after:opacity-active focus:after:opacity-focus cursor-pointer",
             {
-              "bg-secondary": activeType === "break",
-              "bg-primary": activeType === "focus",
+              "bg-blue-500": activeType === "break",
+              "bg-red-500": activeType === "focus",
             }
           )}
         >
@@ -314,8 +314,8 @@ const SolCycle = () => {
           className={clsx(
             "text-white transition-colors font-semibold text-2xl px-4 py-2 relative rounded-lg min-w-60 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full after:bg-black after:opacity-0 after:rounded-[inherit] after:transition-opacity hover:after:opacity-hover active:after:opacity-active focus:after:opacity-focus cursor-pointer",
             {
-              "bg-secondary": activeType === "break",
-              "bg-primary": activeType === "focus",
+              "bg-blue-500": activeType === "break",
+              "bg-red-500": activeType === "focus",
             }
           )}
         >
@@ -327,9 +327,9 @@ const SolCycle = () => {
         className={clsx(
           "bg-white transition-colors border font-semibold text-2xl px-4 py-2 relative rounded-lg min-w-60 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full  after:opacity-0 after:rounded-[inherit] after:transition-opacity hover:after:opacity-hover active:after:opacity-active focus:after:opacity-focus cursor-pointer",
           {
-            "border-secondary text-secondary after:bg-secondary":
+            "border-blue-500 text-blue-500 after:bg-blue-500":
               activeType === "break",
-            "border-primary text-primary after:bg-primary":
+            "border-red-500 text-red-500 after:bg-red-500":
               activeType === "focus",
           }
         )}
