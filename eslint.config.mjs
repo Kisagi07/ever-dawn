@@ -9,17 +9,6 @@ const compat = new FlatCompat({
   baseDirectory: __dirname,
 });
 
-const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
-];
-
-eslintConfig.push({
-  rules: {
-    "max-lines": [
-      "warn",
-      { max: 300, skipBlankLines: true, skipComments: true },
-    ],
-  },
-});
+const eslintConfig = [...compat.extends("next/core-web-vitals", "next/typescript")];
 
 export default eslintConfig;
