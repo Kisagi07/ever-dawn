@@ -1,5 +1,11 @@
 "use client";
-import { useState } from "react";
+import {
+  ChangeEvent,
+  FocusEvent,
+  KeyboardEvent,
+  useRef,
+  useState,
+} from "react";
 import { v4 as uuidv4 } from "uuid";
 import Button from "@/app/components/Button";
 import FloatingText from "@/app/components/FloatingText";
@@ -9,11 +15,15 @@ import { toast } from "../components/Toast";
 import BreadCrumb from "../components/BreadCrumb";
 import Link from "next/link";
 import { ArrowRightCircleIcon } from "@heroicons/react/24/outline";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const Page = () => {
   const [generatedSessions, setGeneratedSessions] = useState<
     { focus: number; break: number; id: string }[]
   >([]);
+
+  const perncetageOldValue = useRef<number | null>(null);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -89,6 +99,62 @@ const Page = () => {
       .flat();
     setGeneratedSessions(sessionWithBreaks);
   };
+  // #region percentage input
+  const handlePercentageBlur = (e: FocusEvent<HTMLInputElement>) => {
+    const input = e.target;
+    const value = input.value;
+    if (value.length > 0) {
+      const newValue = `${value} %`;
+      input.value = newValue;
+    }
+  };
+  const handlePercentageKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    const { key } = e;
+
+    if (key.length === 1 && isNaN(Number(key))) {
+      e.preventDefault();
+    }
+  };
+  const handlePercentageFocus = (e: FocusEvent<HTMLInputElement>) => {
+    const input = e.target;
+    const value = input.value;
+    const newValue = value.replace(" %", "");
+    input.value = newValue;
+  };
+  const handlePercentageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (Number(value) > 60) {
+      e.target.value = perncetageOldValue.current
+        ? perncetageOldValue.current.toString()
+        : "";
+    } else {
+      perncetageOldValue.current = Number(value);
+    }
+  };
+  // #endregion
+  // #region percentage input
+  const handleMaxMinutesBlur = (e: FocusEvent<HTMLInputElement>) => {
+    const input = e.target;
+    const value = input.value;
+    if (value.length > 0) {
+      const newValue = `${value} Max Minutes`;
+      input.value = newValue;
+    }
+  };
+  const handleMaxMinutesKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    const { key } = e;
+
+    if (key.length === 1 && isNaN(Number(key))) {
+      e.preventDefault();
+    }
+  };
+  const handleMaxMinutesFocus = (e: FocusEvent<HTMLInputElement>) => {
+    const input = e.target;
+    const value = input.value;
+    const newValue = value.replace(" Max Minutes", "");
+    input.value = newValue;
+  };
+  // #endregion
 
   return (
     <div className="py-8">
@@ -99,20 +165,30 @@ const Page = () => {
           className="grid gap-4 bg-inherit sm:grid-cols-2 md:grid-cols-4"
           onSubmit={handleSubmit}
         >
-          <FloatingText
-            name="learnPercentage"
-            label="Learn Percentage"
-            defaultValue={"30"}
-            endOfValue="%"
-          />
+          <div className="grid w-full items-center gap-1.5">
+            <Label htmlFor="focus-percentage">Focus Percentage</Label>
+            <Input
+              placeholder="30%"
+              id="focus-percentage"
+              onBlur={handlePercentageBlur}
+              onFocus={handlePercentageFocus}
+              max={100}
+              onKeyDown={handlePercentageKeyDown}
+              onChange={handlePercentageChange}
+            />
+          </div>
           <TimeInput label="Jam Mulai" name="hourStart" />
           <TimeInput label="Jam Selesai" name="hourEnd" />
-          <FloatingText
-            name="maxFocus"
-            label="Max Focus"
-            defaultValue={"15"}
-            endOfValue="Minutes"
-          />
+          <div className="grid w-full items-center gap-1.5">
+            <Label htmlFor="max-minutes">Max Minutes</Label>
+            <Input
+              placeholder="15 Minutes"
+              id="max-minutes"
+              onFocus={handleMaxMinutesFocus}
+              onKeyDown={handleMaxMinutesKeyDown}
+              onBlur={handleMaxMinutesBlur}
+            />
+          </div>
           <Button type="submit">Calculate</Button>
         </form>
         {generatedSessions.length > 0 && (
