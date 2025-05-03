@@ -28,15 +28,17 @@ const Page = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // Handle form submission logic here
+    // #region value getter
     const formData = new FormData(e.currentTarget);
-    const learnPercentage = +(formData.get("learnPercentage") as string)
-      .replace("%", "")
+    const learnPercentage = +(formData.get("focus-percentage") as string)
+      .replace(" %", "")
       .trim();
-    const maxFocus = +(formData.get("maxFocus") as string)
-      .replace("Minutes", "")
+    const maxFocus = +(formData.get("max-focus") as string)
+      .replace(" Max Minutes", "")
       .trim();
     let hourStart: Time;
     let hourEnd: Time;
+    // #endregion
 
     // #region validate valid values
     try {
@@ -65,9 +67,8 @@ const Page = () => {
 
     // #endregion
 
-    // Calculate pomodoro schedule
+    // #region calculate pomodoro scheme
     const difference = hourStart.getDifference(hourEnd);
-    console.log(difference);
 
     const totalFreeTime = difference.hours * 60 + difference.minutes;
     const totalLearnTime = (totalFreeTime * learnPercentage) / 100;
@@ -98,6 +99,7 @@ const Page = () => {
       })
       .flat();
     setGeneratedSessions(sessionWithBreaks);
+    // #endregion
   };
   // #region percentage input
   const handlePercentageBlur = (e: FocusEvent<HTMLInputElement>) => {
@@ -170,6 +172,7 @@ const Page = () => {
             <Input
               placeholder="30%"
               id="focus-percentage"
+              name="focus-percentage"
               onBlur={handlePercentageBlur}
               onFocus={handlePercentageFocus}
               max={100}
@@ -180,13 +183,14 @@ const Page = () => {
           <TimeInput label="Jam Mulai" name="hourStart" />
           <TimeInput label="Jam Selesai" name="hourEnd" />
           <div className="grid w-full items-center gap-1.5">
-            <Label htmlFor="max-minutes">Max Minutes</Label>
+            <Label htmlFor="max-focus">Max Minutes</Label>
             <Input
               placeholder="15 Minutes"
-              id="max-minutes"
+              id="max-focus"
               onFocus={handleMaxMinutesFocus}
               onKeyDown={handleMaxMinutesKeyDown}
               onBlur={handleMaxMinutesBlur}
+              name="max-focus"
             />
           </div>
           <Button type="submit">Calculate</Button>
