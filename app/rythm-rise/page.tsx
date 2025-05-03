@@ -7,7 +7,6 @@ import {
   useState,
 } from "react";
 import { v4 as uuidv4 } from "uuid";
-import Button from "@/app/components/Button";
 import TimeInput from "@/app/components/TimeInput";
 import Time from "@/app/classes/Time";
 import { toast } from "../components/Toast";
@@ -16,6 +15,7 @@ import Link from "next/link";
 import { ArrowRightCircleIcon } from "@heroicons/react/24/outline";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 
 const Page = () => {
   const [generatedSessions, setGeneratedSessions] = useState<
@@ -162,35 +162,34 @@ const Page = () => {
       <div className="bg-white shadow rounded space-y-8 p-4 py-8 md:p-8 max-w-7xl mx-auto">
         <BreadCrumb />
         <h2 className="font-cormorant font-semibold text-3xl">Rythm Rise</h2>
-        <form
-          className="grid gap-4 bg-inherit sm:grid-cols-2 md:grid-cols-4"
-          onSubmit={handleSubmit}
-        >
-          <div className="grid w-full items-center gap-1.5">
-            <Label htmlFor="focus-percentage">Focus Percentage</Label>
-            <Input
-              placeholder="30%"
-              id="focus-percentage"
-              name="focus-percentage"
-              onBlur={handlePercentageBlur}
-              onFocus={handlePercentageFocus}
-              max={100}
-              onKeyDown={handlePercentageKeyDown}
-              onChange={handlePercentageChange}
-            />
-          </div>
-          <TimeInput label="Jam Mulai" name="hourStart" />
-          <TimeInput label="Jam Selesai" name="hourEnd" />
-          <div className="grid w-full items-center gap-1.5">
-            <Label htmlFor="max-focus">Max Minutes</Label>
-            <Input
-              placeholder="15 Minutes"
-              id="max-focus"
-              onFocus={handleMaxMinutesFocus}
-              onKeyDown={handleMaxMinutesKeyDown}
-              onBlur={handleMaxMinutesBlur}
-              name="max-focus"
-            />
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid gap-4 bg-inherit sm:grid-cols-2 md:grid-cols-4">
+            <div className="grid w-full items-center gap-1.5">
+              <Label htmlFor="focus-percentage">Focus Percentage</Label>
+              <Input
+                placeholder="30%"
+                id="focus-percentage"
+                name="focus-percentage"
+                onBlur={handlePercentageBlur}
+                onFocus={handlePercentageFocus}
+                max={100}
+                onKeyDown={handlePercentageKeyDown}
+                onChange={handlePercentageChange}
+              />
+            </div>
+            <TimeInput label="Jam Mulai" name="hourStart" />
+            <TimeInput label="Jam Selesai" name="hourEnd" />
+            <div className="grid w-full items-center gap-1.5">
+              <Label htmlFor="max-focus">Max Minutes</Label>
+              <Input
+                placeholder="15 Minutes"
+                id="max-focus"
+                onFocus={handleMaxMinutesFocus}
+                onKeyDown={handleMaxMinutesKeyDown}
+                onBlur={handleMaxMinutesBlur}
+                name="max-focus"
+              />
+            </div>
           </div>
           <Button type="submit">Calculate</Button>
         </form>
@@ -210,13 +209,14 @@ const Page = () => {
                 ))}
               </ul>
             </div>
-            <Link
-              href={`/sol-cycle?scheme=${JSON.stringify(generatedSessions)}`}
-              className="text-primary bg-red-100 px-4 py-2 pr-6 group rounded  shadow flex items-center gap-2 w-max interactable-red"
-            >
-              Open Scheme in Sol Cycle
-              <ArrowRightCircleIcon className="size-6 group-hover:translate-x-4 transition-transform" />
-            </Link>
+            <Button asChild>
+              <Link
+                href={`/sol-cycle?scheme=${JSON.stringify(generatedSessions)}`}
+              >
+                Open Scheme in Sol Cycle
+                <ArrowRightCircleIcon className="size-6 group-hover:translate-x-4 transition-transform" />
+              </Link>
+            </Button>
           </>
         )}
       </div>

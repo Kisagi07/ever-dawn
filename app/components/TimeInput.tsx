@@ -26,7 +26,7 @@ export default function TimeInput({
 
     if (value.length < 3) {
       const hourValue = Number(value.slice(0, 2));
-      if (hourValue > 24) {
+      if (hourValue > 23) {
         usePrevousValue();
       }
     } else {
