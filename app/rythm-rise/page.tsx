@@ -167,6 +167,7 @@ const Page = () => {
             <div className="grid w-full items-center gap-1.5">
               <Label htmlFor="focus-percentage">Focus Percentage</Label>
               <Input
+                inputMode="tel"
                 placeholder="30%"
                 id="focus-percentage"
                 name="focus-percentage"
@@ -182,6 +183,7 @@ const Page = () => {
             <div className="grid w-full items-center gap-1.5">
               <Label htmlFor="max-focus">Max Minutes</Label>
               <Input
+                inputMode="tel"
                 placeholder="15 Minutes"
                 id="max-focus"
                 onFocus={handleMaxMinutesFocus}

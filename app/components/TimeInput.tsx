@@ -86,6 +86,7 @@ export default function TimeInput({
         name={name}
         onChange={handleChange}
         onFocus={handleFocus}
+        inputMode="tel"
       />
     </div>
   );
