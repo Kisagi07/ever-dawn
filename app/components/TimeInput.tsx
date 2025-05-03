@@ -79,6 +79,24 @@ export default function TimeInput({
     input.value = value;
   };
 
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    handleKeydownOnlyNumber(e);
+
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      const input = e.currentTarget;
+      const [hourValue, minuteValue, secondValue] =
+        e.currentTarget.value.split(" : ");
+      if (!minuteValue || minuteValue.length < 2) {
+        const newValue = ``;
+        input.value = newValue;
+      } else {
+        const newValue = `${hourValue} : `;
+        input.value = newValue;
+      }
+    }
+  };
+
   // useEffect(() => {
   //   if (focusOn) {
   //     const indicateFocus = () => {
@@ -195,7 +213,7 @@ export default function TimeInput({
       <Input
         id={id}
         placeholder="00 : 00 : 00"
-        onKeyDown={handleKeydownOnlyNumber}
+        onKeyDown={handleKeyDown}
         name={name}
         onChange={handleChange}
         onFocus={handleFocus}
