@@ -8,7 +8,6 @@ import {
 } from "react";
 import { v4 as uuidv4 } from "uuid";
 import Button from "@/app/components/Button";
-import FloatingText from "@/app/components/FloatingText";
 import TimeInput from "@/app/components/TimeInput";
 import Time from "@/app/classes/Time";
 import { toast } from "../components/Toast";

@@ -2,14 +2,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import handleKeydownOnlyNumber from "@/lib/handleKeydownOnlyNumber";
-import {
-  ChangeEvent,
-  FocusEvent,
-  KeyboardEvent,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { ChangeEvent, FocusEvent, KeyboardEvent, useRef } from "react";
 
 export default function TimeInput({
   label = "",
@@ -20,20 +13,6 @@ export default function TimeInput({
   name?: string;
   id?: string;
 }) {
-  const [values, setValues] = useState({
-    hours: "--",
-    minutes: "--",
-    seconds: "--",
-  });
-
-  const [focusOn, setFocusOn] = useState<
-    "hours" | "minutes" | "seconds" | undefined
-  >();
-
-  const hourRef = useRef<HTMLSpanElement>(null);
-  const minuteRef = useRef<HTMLSpanElement>(null);
-  const secondRef = useRef<HTMLSpanElement>(null);
-
   const previousTimeValue = useRef<string | null>(null);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
