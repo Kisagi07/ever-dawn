@@ -58,7 +58,6 @@ class Time {
     let hourDifference = 0;
     // while the alterHours are not equal time.hours, it will keep adding incrementing alterHours and hourDifference until the hours match
     while (alterHours !== time.hours) {
-      console.log(hourDifference);
       hourDifference++;
       alterHours++;
       if (alterHours === 24) {
