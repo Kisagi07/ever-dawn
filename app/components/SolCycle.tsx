@@ -333,44 +333,40 @@ const SolCycle = () => {
           {formatTime(timeLeft)}
         </h2>
         {!isRunning ? (
-          <button
+          <Button
             onClick={handleStart}
-            className={clsx(
-              " text-white transition-colors font-semibold text-2xl px-4 py-2 relative rounded-lg min-w-60 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full after:bg-black after:opacity-0 after:rounded-[inherit] after:transition-opacity hover:after:opacity-hover active:after:opacity-active focus:after:opacity-focus cursor-pointer",
-              {
-                "bg-blue-500": activeType === "break",
-                "bg-red-500": activeType === "focus",
-              }
-            )}
+            className={clsx("w-full", {
+              "bg-blue-500 hover:bg-blue-600": activeType === "break",
+              "bg-red-500 hover:bg-red-600": activeType === "focus",
+            })}
+            size="lg"
           >
             Start
-          </button>
+          </Button>
         ) : (
-          <button
+          <Button
             onClick={handlePause}
-            className={clsx(
-              "text-white transition-colors font-semibold text-2xl px-4 py-2 relative rounded-lg min-w-60 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full after:bg-black after:opacity-0 after:rounded-[inherit] after:transition-opacity hover:after:opacity-hover active:after:opacity-active focus:after:opacity-focus cursor-pointer",
-              {
-                "bg-blue-500": activeType === "break",
-                "bg-red-500": activeType === "focus",
-              }
-            )}
+            className={clsx("w-full", {
+              "bg-blue-500 hover:bg-blue-600": activeType === "break",
+              "bg-red-500 hover:bg-red-600": activeType === "focus",
+            })}
+            size="lg"
+            variant="outline"
           >
             Pause
-          </button>
+          </Button>
         )}
-        <button
+        <Button
           onClick={handleReset}
-          className={clsx(
-            "bg-white transition-colors border font-semibold text-2xl px-4 py-2 relative rounded-lg min-w-60 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full  after:opacity-0 after:rounded-[inherit] after:transition-opacity hover:after:opacity-hover active:after:opacity-active focus:after:opacity-focus cursor-pointer",
-            {
-              "border-blue-500 text-blue-500 after:bg-blue-500": activeType === "break",
-              "border-red-500 text-red-500 after:bg-red-500": activeType === "focus",
-            }
-          )}
+          className={clsx("w-full", {
+            "border-blue-500 text-blue-500 hover:text-blue-600 hover:bg-blue-50": activeType === "break",
+            "border-red-500 text-red-500 hover:text-red-600 hover:bg-red-50": activeType === "focus",
+          })}
+          size="lg"
+          variant="outline"
         >
           Reset
-        </button>
+        </Button>
         <SkipSession activeType={activeType} handleSchemeCompletion={handleSchemeCompletion} isRunning={isRunning} />
       </div>
     </div>
