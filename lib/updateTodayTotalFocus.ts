@@ -39,6 +39,7 @@ const updateTodayTotalFocus = async (focus: number) => {
         },
       ];
     }
+    await redis.set("total-focus", daysFocus);
   } catch (err) {
     console.error(err);
     return "FAIL";
