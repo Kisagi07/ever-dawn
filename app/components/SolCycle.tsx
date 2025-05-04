@@ -15,11 +15,17 @@ import { Badge } from "@/components/ui/badge";
 import updateTodayTotalFocus from "@/lib/updateTodayTotalFocus";
 import getTodayTotalFocus from "@/lib/getTodayTotalFocus";
 import Settings from "@/components/pages/sol-cycle/Settings";
+import StarSelection from "@/components/pages/sol-cycle/StarSelection";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+
+interface IteratingSchemeWithId extends IteratingScheme {
+  id: string;
+}
 
 const SolCycle = () => {
   const searchParams = useSearchParams();
 
-  const [scheme, setScheme] = useState<SetScheme | IteratingScheme[]>({
+  const [scheme, setScheme] = useState<SetScheme | IteratingSchemeWithId[]>({
     break: 5,
     focus: 25,
   });
@@ -80,7 +86,7 @@ const SolCycle = () => {
   }, [noSchemeRemaining]);
 
   const getTheNextIterateScheme = useCallback(() => {
-    const newScheme = [...(scheme as IteratingScheme[])];
+    const newScheme = [...(scheme as IteratingSchemeWithId[])];
     const completedSession = newScheme.shift();
     const nextSession = newScheme[0];
     setScheme(newScheme);
@@ -178,6 +184,8 @@ const SolCycle = () => {
     setEndTime(null);
   };
 
+  const usingCustomScheme = () => Array.isArray(scheme);
+
   useEffect(() => {
     if (Notification.permission === "default") {
       Notification.requestPermission();
@@ -187,16 +195,19 @@ const SolCycle = () => {
       const parsedScheme = JSON.parse(customScheme) as {
         focus: number;
         break: number;
+        id: string;
       }[];
-      const generatedScheme: IteratingScheme[] = [];
+      const generatedScheme: IteratingSchemeWithId[] = [];
       parsedScheme.forEach((scheme) => {
         generatedScheme.push({
           type: "focus",
           time: scheme.focus,
+          id: scheme.id + "focus",
         });
         generatedScheme.push({
           type: "break",
           time: scheme.break,
+          id: scheme.id + "break",
         });
       });
       setScheme(generatedScheme);
@@ -260,22 +271,41 @@ const SolCycle = () => {
 
   return (
     <div className="w-full h-screen flex items-center justify-center">
-      <div className="bg-white p-6 rounded-lg shadow-lg flex items-center justify-center flex-col gap-4">
+      <div className="bg-white max-w-full p-6 rounded-lg shadow-lg flex items-center justify-center flex-col gap-4">
         <div className="w-full flex items-center justify-between">
           <BreadCrumb />
           <Settings dailyTarget={dailyTarget} setDailyTarget={setDailyTarget} />
         </div>
-
-        {Number(dailyTarget) > 0 && (
-          <Badge
-            variant="outline"
-            className={clsx({
-              "border-emerald-500 text-emerald-500": todayTotalFocus >= Number(dailyTarget),
-            })}
-          >
-            {todayTotalFocus} / {dailyTarget}
-          </Badge>
-        )}
+        <StarSelection setStarSelected={setStarSelected} starSelected={starSelected} />
+        <div className="flex flex-col items-center gap-2 w-full">
+          {Number(dailyTarget) > 0 && (
+            <Badge
+              variant="outline"
+              className={clsx({
+                "border-emerald-500 text-emerald-500": todayTotalFocus >= Number(dailyTarget),
+              })}
+            >
+              {todayTotalFocus} / {dailyTarget}
+            </Badge>
+          )}
+          {usingCustomScheme() && (
+            <div className="flex gap-1 w-full overflow-hidden">
+              {(scheme as IteratingSchemeWithId[]).map((sc, index) => (
+                <Badge
+                  key={sc.id}
+                  className={clsx("capitalize w-max transition-all", {
+                    "bg-blue-100 text-blue-500": sc.type === "break",
+                    "bg-red-100 text-red-500": sc.type === "focus",
+                    "bg-blue-500 text-white": sc.type === "break" && index == 0,
+                    "bg-red-500 text-white": sc.type === "focus" && index == 0,
+                  })}
+                >
+                  {sc.type} : {sc.time}
+                </Badge>
+              ))}
+            </div>
+          )}
+        </div>
         <h2
           className={clsx("text-7xl transition-colors font-bold font-jetbrains-mono", {
             "text-blue-500": activeType === "break",

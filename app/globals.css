@@ -11,10 +11,11 @@
   --font-inter: var(--font-inter);
   --font-jetbrains-mono: var(--font-jetbrans-mono);
 
-  --shadow-floating: 0px 4px 6px rgba(0, 0, 0, 0.1),
-    0px 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-floating: 0px 4px 6px rgba(0, 0, 0, 0.1), 0px 1px 3px rgba(0, 0, 0, 0.06);
 
   --animate-wiggle: wiggle 3s ease-in-out forwards;
+  --animate-fade-out: fade-out 150ms ease-in-out forwards;
+
   @keyframes wiggle {
     0%,
     100% {
@@ -30,6 +31,15 @@
       transform: translateY(5rem);
       opacity: 0;
       animation-timing-function: cubic-bezier(0, 4, 0, 1, 1);
+    }
+  }
+
+  @keyframes fade-out {
+    0% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
     }
   }
 }
