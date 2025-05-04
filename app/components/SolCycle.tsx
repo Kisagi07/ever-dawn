@@ -3,14 +3,18 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import BreadCrumb from "../components/BreadCrumb";
 import { toast } from "../components/Toast";
-import Tooltip from "../components/Tooltip";
 import clsx from "clsx";
-import StarSelect from "../components/StarSelect";
 import updateStar from "../libs/updateStar";
 import { useSearchParams } from "next/navigation";
 import playSound from "@/utils/playSound";
 import formatTime from "@/utils/formatTime";
 import SkipSession from "@/components/pages/sol-cycle/SkipSession";
+import { Button } from "@/components/ui/button";
+import getDailyTarget from "@/lib/getDailyTarget";
+import { Badge } from "@/components/ui/badge";
+import updateTodayTotalFocus from "@/lib/updateTodayTotalFocus";
+import getTodayTotalFocus from "@/lib/getTodayTotalFocus";
+import Settings from "@/components/pages/sol-cycle/Settings";
 
 const SolCycle = () => {
   const searchParams = useSearchParams();
@@ -23,8 +27,9 @@ const SolCycle = () => {
   const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [isRunning, setIsRunning] = useState(false);
   const [endTime, setEndTime] = useState<number | null>(null);
-  const [openStarSelect, setOpenStarSelect] = useState(false);
   const [starSelected, setStarSelected] = useState<Star | null>(null);
+  const [dailyTarget, setDailyTarget] = useState("0");
+  const [todayTotalFocus, setTodayTotalFocus] = useState(0);
 
   const starSelectedPrevious = useRef<Star | null>(null);
 
@@ -91,6 +96,18 @@ const SolCycle = () => {
     [scheme]
   );
 
+  const addTodayTotalFocus = useCallback(
+    async (minute: number) => {
+      const newTotal = todayTotalFocus + minute;
+      setTodayTotalFocus(newTotal);
+      const response = await updateTodayTotalFocus(newTotal);
+      if (response === "FAIL") {
+        toast("Failed in updating today total focus", "red");
+      }
+    },
+    [todayTotalFocus]
+  );
+
   const handleSchemeCompletion = useCallback(
     (skipStarAdd: boolean = false) => {
       sendNotification();
@@ -100,6 +117,7 @@ const SolCycle = () => {
           switchDefaultScheme("break");
           if (skipStarAdd) {
             addMinuteToStar(scheme.focus);
+            addTodayTotalFocus(scheme.focus);
           }
         } else {
           switchDefaultScheme("focus");
@@ -109,6 +127,7 @@ const SolCycle = () => {
         // remove the first element from the array
         if (completedSession && completedSession.type === "focus" && !skipStarAdd) {
           addMinuteToStar(completedSession.time);
+          addTodayTotalFocus(completedSession.time);
         }
         if (nextSession) {
           setActiveType(nextSession.type);
@@ -119,7 +138,7 @@ const SolCycle = () => {
         }
       }
     },
-    [activeType, addMinuteToStar, getTheNextIterateScheme, scheme, sendNotification, stopPomodoro, switchDefaultScheme]
+    [activeType, addMinuteToStar, getTheNextIterateScheme, scheme, sendNotification, stopPomodoro, switchDefaultScheme, addTodayTotalFocus]
   );
 
   const handleStart = () => {
@@ -149,8 +168,12 @@ const SolCycle = () => {
           break;
       }
     } else {
-      setTimeLeft(scheme[0].time * 60);
-      setActiveType(scheme[0].type);
+      if (scheme.length > 0) {
+        setTimeLeft(scheme[0].time * 60);
+        setActiveType(scheme[0].type);
+      } else {
+        setTimeLeft(0);
+      }
     }
     setEndTime(null);
   };
@@ -216,72 +239,88 @@ const SolCycle = () => {
     return () => clearInterval(timer);
   }, [isRunning, endTime, activeType, addMinuteToStar, noSchemeRemaining, scheme, sendNotification, handleSchemeCompletion]);
 
+  useEffect(() => {
+    getDailyTarget().then((response) => {
+      if (typeof response === "object") {
+        if ((response.message = "faile")) {
+          toast("Failed to get daily target", "red");
+        }
+      } else {
+        setDailyTarget(response.toString());
+      }
+    });
+    getTodayTotalFocus().then((response) => {
+      if (response === "FAIL") {
+        toast("Failed to get today total focus", "red");
+      } else if (response) {
+        setTodayTotalFocus(response);
+      }
+    });
+  }, []);
+
   return (
-    <div className="bg-white w-full h-screen flex items-center justify-center flex-col gap-4">
-      <BreadCrumb />
-      <div className="relative">
-        <Tooltip text="Change Active Star">
-          <button onClick={() => setOpenStarSelect(!openStarSelect)} className={clsx("font-medium transition-colors cursor-pointer")}>
-            {starSelected ? starSelected.name : "Select Star"}
-          </button>
-        </Tooltip>
-        {openStarSelect && (
-          <StarSelect
-            starSelected={(star) => {
-              setStarSelected(star);
-              setOpenStarSelect(false);
-            }}
-          />
+    <div className="w-full h-screen flex items-center justify-center">
+      <div className="bg-white p-6 rounded-lg shadow-lg flex items-center justify-center flex-col gap-4">
+        <div className="w-full flex items-center justify-between">
+          <BreadCrumb />
+          <Settings dailyTarget={dailyTarget} setDailyTarget={setDailyTarget} />
+        </div>
+
+        {Number(dailyTarget) > 0 && (
+          <Badge
+            variant="outline"
+            className={clsx({
+              "border-emerald-500 text-emerald-500": todayTotalFocus >= Number(dailyTarget),
+            })}
+          >
+            {todayTotalFocus} / {dailyTarget}
+          </Badge>
         )}
+        <h2
+          className={clsx("text-7xl transition-colors font-bold font-jetbrains-mono", {
+            "text-blue-500": activeType === "break",
+            "text-red-500": activeType === "focus",
+          })}
+        >
+          {formatTime(timeLeft)}
+        </h2>
+        {!isRunning ? (
+          <Button
+            onClick={handleStart}
+            className={clsx("w-full", {
+              "bg-blue-500 hover:bg-blue-600": activeType === "break",
+              "bg-red-500 hover:bg-red-600": activeType === "focus",
+            })}
+            size="lg"
+          >
+            Start
+          </Button>
+        ) : (
+          <Button
+            onClick={handlePause}
+            className={clsx("w-full", {
+              "bg-blue-500 hover:bg-blue-600": activeType === "break",
+              "bg-red-500 hover:bg-red-600": activeType === "focus",
+            })}
+            size="lg"
+            variant="outline"
+          >
+            Pause
+          </Button>
+        )}
+        <Button
+          onClick={handleReset}
+          className={clsx("w-full", {
+            "border-blue-500 text-blue-500 hover:text-blue-600 hover:bg-blue-50": activeType === "break",
+            "border-red-500 text-red-500 hover:text-red-600 hover:bg-red-50": activeType === "focus",
+          })}
+          size="lg"
+          variant="outline"
+        >
+          Reset
+        </Button>
+        <SkipSession activeType={activeType} handleSchemeCompletion={handleSchemeCompletion} isRunning={isRunning} />
       </div>
-      <h2
-        className={clsx("text-7xl transition-colors font-bold font-jetbrains-mono", {
-          "text-blue-500": activeType === "break",
-          "text-red-500": activeType === "focus",
-        })}
-      >
-        {formatTime(timeLeft)}
-      </h2>
-      {!isRunning ? (
-        <button
-          onClick={handleStart}
-          className={clsx(
-            " text-white transition-colors font-semibold text-2xl px-4 py-2 relative rounded-lg min-w-60 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full after:bg-black after:opacity-0 after:rounded-[inherit] after:transition-opacity hover:after:opacity-hover active:after:opacity-active focus:after:opacity-focus cursor-pointer",
-            {
-              "bg-blue-500": activeType === "break",
-              "bg-red-500": activeType === "focus",
-            }
-          )}
-        >
-          Start
-        </button>
-      ) : (
-        <button
-          onClick={handlePause}
-          className={clsx(
-            "text-white transition-colors font-semibold text-2xl px-4 py-2 relative rounded-lg min-w-60 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full after:bg-black after:opacity-0 after:rounded-[inherit] after:transition-opacity hover:after:opacity-hover active:after:opacity-active focus:after:opacity-focus cursor-pointer",
-            {
-              "bg-blue-500": activeType === "break",
-              "bg-red-500": activeType === "focus",
-            }
-          )}
-        >
-          Pause
-        </button>
-      )}
-      <button
-        onClick={handleReset}
-        className={clsx(
-          "bg-white transition-colors border font-semibold text-2xl px-4 py-2 relative rounded-lg min-w-60 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full  after:opacity-0 after:rounded-[inherit] after:transition-opacity hover:after:opacity-hover active:after:opacity-active focus:after:opacity-focus cursor-pointer",
-          {
-            "border-blue-500 text-blue-500 after:bg-blue-500": activeType === "break",
-            "border-red-500 text-red-500 after:bg-red-500": activeType === "focus",
-          }
-        )}
-      >
-        Reset
-      </button>
-      <SkipSession activeType={activeType} handleSchemeCompletion={handleSchemeCompletion} isRunning={isRunning} />
     </div>
   );
 };
