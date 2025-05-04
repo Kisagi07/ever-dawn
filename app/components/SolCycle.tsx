@@ -37,6 +37,7 @@ const SolCycle = () => {
   const [openStarSelect, setOpenStarSelect] = useState(false);
   const [starSelected, setStarSelected] = useState<Star | null>(null);
   const [dailyTarget, setDailyTarget] = useState("0");
+  const [todayTotalFocus, setTodayTotalFocus] = useState(0);
 
   const starSelectedPrevious = useRef<Star | null>(null);
 
@@ -296,7 +297,11 @@ const SolCycle = () => {
             />
           )}
         </div>
-        {Number(dailyTarget) > 0 && <Badge variant="outline">0 / {dailyTarget}</Badge>}
+        {Number(dailyTarget) > 0 && (
+          <Badge variant="outline">
+            {todayTotalFocus} / {dailyTarget}
+          </Badge>
+        )}
         <h2
           className={clsx("text-7xl transition-colors font-bold font-jetbrains-mono", {
             "text-blue-500": activeType === "break",
