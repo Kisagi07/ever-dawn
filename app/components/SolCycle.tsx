@@ -20,6 +20,7 @@ import handleKeydownOnlyNumber from "@/lib/handleKeydownOnlyNumber";
 import { handleBlurIndicator, handleFocusIndicator } from "@/lib/handleInputFocusBlur";
 import { Label } from "@/components/ui/label";
 import updateDailyTarget from "@/lib/updateDailyTarget";
+import getDailyTarget from "@/lib/getDailyTarget";
 
 const SolCycle = () => {
   const searchParams = useSearchParams();
@@ -234,6 +235,18 @@ const SolCycle = () => {
 
     return () => clearInterval(timer);
   }, [isRunning, endTime, activeType, addMinuteToStar, noSchemeRemaining, scheme, sendNotification, handleSchemeCompletion]);
+
+  useEffect(() => {
+    getDailyTarget().then((response) => {
+      if (typeof response === "object") {
+        if ((response.message = "faile")) {
+          toast("Failed to get daily target", "red");
+        }
+      } else {
+        setDailyTarget(response.toString());
+      }
+    });
+  }, []);
 
   return (
     <div className="w-full h-screen flex items-center justify-center">
