@@ -21,6 +21,7 @@ import { handleBlurIndicator, handleFocusIndicator } from "@/lib/handleInputFocu
 import { Label } from "@/components/ui/label";
 import updateDailyTarget from "@/lib/updateDailyTarget";
 import getDailyTarget from "@/lib/getDailyTarget";
+import { Badge } from "@/components/ui/badge";
 
 const SolCycle = () => {
   const searchParams = useSearchParams();
@@ -295,6 +296,7 @@ const SolCycle = () => {
             />
           )}
         </div>
+        {Number(dailyTarget) > 0 && <Badge variant="outline">0 / {dailyTarget}</Badge>}
         <h2
           className={clsx("text-7xl transition-colors font-bold font-jetbrains-mono", {
             "text-blue-500": activeType === "break",
