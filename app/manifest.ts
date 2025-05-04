@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Ever Dawn",
-    short_name: "EDawn",
+    name: "Ever Dawn : Star Journey",
+    short_name: "Ever Dawn",
     description: "Keep Track of Your Journey of Skills Learning",
     start_url: "/",
     display: "standalone",
