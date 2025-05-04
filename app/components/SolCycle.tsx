@@ -18,14 +18,14 @@ import Settings from "@/components/pages/sol-cycle/Settings";
 import StarSelection from "@/components/pages/sol-cycle/StarSelection";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
-interface IteratingSchemeWithId extends IteratingScheme {
+interface IteratingExtended extends IteratingScheme {
   id: string;
 }
 
 const SolCycle = () => {
   const searchParams = useSearchParams();
 
-  const [scheme, setScheme] = useState<SetScheme | IteratingSchemeWithId[]>({
+  const [scheme, setScheme] = useState<SetScheme | IteratingExtended[]>({
     break: 5,
     focus: 25,
   });
@@ -36,6 +36,8 @@ const SolCycle = () => {
   const [starSelected, setStarSelected] = useState<Star | null>(null);
   const [dailyTarget, setDailyTarget] = useState("0");
   const [todayTotalFocus, setTodayTotalFocus] = useState(0);
+  const [badgeFade, setBadgeFade] = useState(false);
+  const [activeSchemeIndex, setActiveSchemeIndex] = useState(0);
 
   const starSelectedPrevious = useRef<Star | null>(null);
 
@@ -86,12 +88,14 @@ const SolCycle = () => {
   }, [noSchemeRemaining]);
 
   const getTheNextIterateScheme = useCallback(() => {
-    const newScheme = [...(scheme as IteratingSchemeWithId[])];
-    const completedSession = newScheme.shift();
-    const nextSession = newScheme[0];
-    setScheme(newScheme);
+    const arrayScheme = scheme as IteratingExtended[];
+    const nextIndex = activeSchemeIndex + 1;
+    const completedSession = arrayScheme[activeSchemeIndex];
+    const nextSession: IteratingExtended | undefined = arrayScheme[nextIndex];
+
+    setActiveSchemeIndex(nextIndex);
     return { completedSession, nextSession };
-  }, [scheme]);
+  }, [scheme, activeSchemeIndex]);
 
   const switchDefaultScheme = useCallback(
     (type: "break" | "focus") => {
@@ -130,7 +134,7 @@ const SolCycle = () => {
         }
       } else {
         const { completedSession, nextSession } = getTheNextIterateScheme();
-        // remove the first element from the array
+
         if (completedSession && completedSession.type === "focus" && !skipStarAdd) {
           addMinuteToStar(completedSession.time);
           addTodayTotalFocus(completedSession.time);
@@ -175,8 +179,8 @@ const SolCycle = () => {
       }
     } else {
       if (scheme.length > 0) {
-        setTimeLeft(scheme[0].time * 60);
-        setActiveType(scheme[0].type);
+        setTimeLeft(scheme[activeSchemeIndex].time * 60);
+        setActiveType(scheme[activeSchemeIndex].type);
       } else {
         setTimeLeft(0);
       }
@@ -197,7 +201,7 @@ const SolCycle = () => {
         break: number;
         id: string;
       }[];
-      const generatedScheme: IteratingSchemeWithId[] = [];
+      const generatedScheme: IteratingExtended[] = [];
       parsedScheme.forEach((scheme) => {
         generatedScheme.push({
           type: "focus",
@@ -289,20 +293,23 @@ const SolCycle = () => {
             </Badge>
           )}
           {usingCustomScheme() && (
-            <div className="flex gap-1 w-full overflow-hidden">
-              {(scheme as IteratingSchemeWithId[]).map((sc, index) => (
-                <Badge
-                  key={sc.id}
-                  className={clsx("capitalize w-max transition-all", {
-                    "bg-blue-100 text-blue-500": sc.type === "break",
-                    "bg-red-100 text-red-500": sc.type === "focus",
-                    "bg-blue-500 text-white": sc.type === "break" && index == 0,
-                    "bg-red-500 text-white": sc.type === "focus" && index == 0,
-                  })}
-                >
-                  {sc.type} : {sc.time}
-                </Badge>
-              ))}
+            <div className="overflow-hidden  w-full">
+              <div className="flex gap-1 transition-transform delay-500" style={{ transform: `translateX(-${72 * activeSchemeIndex}px)` }}>
+                {(scheme as IteratingExtended[]).map((sc, index) => (
+                  <Badge
+                    key={sc.id}
+                    className={clsx("capitalize transition-all w-17 text-center", {
+                      "bg-blue-100 text-blue-500": sc.type === "break",
+                      "bg-red-100 text-red-500": sc.type === "focus",
+                      "bg-blue-500 text-white": sc.type === "break" && index == activeSchemeIndex,
+                      "bg-red-500 text-white": sc.type === "focus" && index == activeSchemeIndex,
+                      "animate-fade-out": index < activeSchemeIndex,
+                    })}
+                  >
+                    {sc.type} : {sc.time}
+                  </Badge>
+                ))}
+              </div>
             </div>
           )}
         </div>
@@ -317,7 +324,7 @@ const SolCycle = () => {
         {!isRunning ? (
           <Button
             onClick={handleStart}
-            className={clsx("w-full", {
+            className={clsx("w-full text-white", {
               "bg-blue-500 hover:bg-blue-600": activeType === "break",
               "bg-red-500 hover:bg-red-600": activeType === "focus",
             })}
@@ -328,7 +335,7 @@ const SolCycle = () => {
         ) : (
           <Button
             onClick={handlePause}
-            className={clsx("w-full", {
+            className={clsx("w-full text-white", {
               "bg-blue-500 hover:bg-blue-600": activeType === "break",
               "bg-red-500 hover:bg-red-600": activeType === "focus",
             })}
