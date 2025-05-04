@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { FocusEvent, useCallback, useEffect, useRef, useState } from "react";
 import BreadCrumb from "../components/BreadCrumb";
 import { toast } from "../components/Toast";
 import Tooltip from "../components/Tooltip";
@@ -11,6 +11,15 @@ import { useSearchParams } from "next/navigation";
 import playSound from "@/utils/playSound";
 import formatTime from "@/utils/formatTime";
 import SkipSession from "@/components/pages/sol-cycle/SkipSession";
+import { Button } from "@/components/ui/button";
+import { Settings } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import handleKeydownOnlyNumber from "@/lib/handleKeydownOnlyNumber";
+import { handleBlurIndicator, handleFocusIndicator } from "@/lib/handleInputFocusBlur";
+import { Label } from "@/components/ui/label";
+import updateDailyTarget from "@/lib/updateDailyTarget";
 
 const SolCycle = () => {
   const searchParams = useSearchParams();
@@ -25,6 +34,7 @@ const SolCycle = () => {
   const [endTime, setEndTime] = useState<number | null>(null);
   const [openStarSelect, setOpenStarSelect] = useState(false);
   const [starSelected, setStarSelected] = useState<Star | null>(null);
+  const [dailyTarget, setDailyTarget] = useState("0");
 
   const starSelectedPrevious = useRef<Star | null>(null);
 
@@ -155,6 +165,15 @@ const SolCycle = () => {
     setEndTime(null);
   };
 
+  const handleSettingSave = async () => {
+    const result = await updateDailyTarget(Number(dailyTarget));
+    if (result.status === "success") {
+      toast("Daily target set", "blue");
+    } else {
+      toast("Daily target failed to update", "red");
+    }
+  };
+
   useEffect(() => {
     if (Notification.permission === "default") {
       Notification.requestPermission();
@@ -217,71 +236,101 @@ const SolCycle = () => {
   }, [isRunning, endTime, activeType, addMinuteToStar, noSchemeRemaining, scheme, sendNotification, handleSchemeCompletion]);
 
   return (
-    <div className="bg-white w-full h-screen flex items-center justify-center flex-col gap-4">
-      <BreadCrumb />
-      <div className="relative">
-        <Tooltip text="Change Active Star">
-          <button onClick={() => setOpenStarSelect(!openStarSelect)} className={clsx("font-medium transition-colors cursor-pointer")}>
-            {starSelected ? starSelected.name : "Select Star"}
+    <div className="w-full h-screen flex items-center justify-center">
+      <div className="bg-white p-6 rounded-lg shadow-lg flex items-center justify-center flex-col gap-4">
+        <div className="w-full flex items-center justify-between">
+          <BreadCrumb />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button size="icon" variant="ghost">
+                <Settings />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent>
+              <h3>Settings</h3>
+              <Separator className="my-4" />
+              <div className="grid w-full items-center gap-1.5">
+                <Label htmlFor="daily-target">Daily Target</Label>
+                <Input
+                  id="daily-target"
+                  placeholder="Daily Focus Target"
+                  value={dailyTarget}
+                  onChange={(e) => setDailyTarget(e.target.value)}
+                  onKeyDown={handleKeydownOnlyNumber}
+                  onFocus={(e) => handleFocusIndicator(e, " Minutes")}
+                  onBlur={(e) => handleBlurIndicator(e, " Minutes")}
+                />
+              </div>
+              <Button onClick={handleSettingSave} className="mt-4 bg-red-500 text-white hover:bg-red-600">
+                Save
+              </Button>
+            </PopoverContent>
+          </Popover>
+        </div>
+        <div className="relative">
+          <Tooltip text="Change Active Star">
+            <button onClick={() => setOpenStarSelect(!openStarSelect)} className={clsx("font-medium transition-colors cursor-pointer")}>
+              {starSelected ? starSelected.name : "Select Star"}
+            </button>
+          </Tooltip>
+          {openStarSelect && (
+            <StarSelect
+              starSelected={(star) => {
+                setStarSelected(star);
+                setOpenStarSelect(false);
+              }}
+            />
+          )}
+        </div>
+        <h2
+          className={clsx("text-7xl transition-colors font-bold font-jetbrains-mono", {
+            "text-blue-500": activeType === "break",
+            "text-red-500": activeType === "focus",
+          })}
+        >
+          {formatTime(timeLeft)}
+        </h2>
+        {!isRunning ? (
+          <button
+            onClick={handleStart}
+            className={clsx(
+              " text-white transition-colors font-semibold text-2xl px-4 py-2 relative rounded-lg min-w-60 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full after:bg-black after:opacity-0 after:rounded-[inherit] after:transition-opacity hover:after:opacity-hover active:after:opacity-active focus:after:opacity-focus cursor-pointer",
+              {
+                "bg-blue-500": activeType === "break",
+                "bg-red-500": activeType === "focus",
+              }
+            )}
+          >
+            Start
           </button>
-        </Tooltip>
-        {openStarSelect && (
-          <StarSelect
-            starSelected={(star) => {
-              setStarSelected(star);
-              setOpenStarSelect(false);
-            }}
-          />
+        ) : (
+          <button
+            onClick={handlePause}
+            className={clsx(
+              "text-white transition-colors font-semibold text-2xl px-4 py-2 relative rounded-lg min-w-60 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full after:bg-black after:opacity-0 after:rounded-[inherit] after:transition-opacity hover:after:opacity-hover active:after:opacity-active focus:after:opacity-focus cursor-pointer",
+              {
+                "bg-blue-500": activeType === "break",
+                "bg-red-500": activeType === "focus",
+              }
+            )}
+          >
+            Pause
+          </button>
         )}
+        <button
+          onClick={handleReset}
+          className={clsx(
+            "bg-white transition-colors border font-semibold text-2xl px-4 py-2 relative rounded-lg min-w-60 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full  after:opacity-0 after:rounded-[inherit] after:transition-opacity hover:after:opacity-hover active:after:opacity-active focus:after:opacity-focus cursor-pointer",
+            {
+              "border-blue-500 text-blue-500 after:bg-blue-500": activeType === "break",
+              "border-red-500 text-red-500 after:bg-red-500": activeType === "focus",
+            }
+          )}
+        >
+          Reset
+        </button>
+        <SkipSession activeType={activeType} handleSchemeCompletion={handleSchemeCompletion} isRunning={isRunning} />
       </div>
-      <h2
-        className={clsx("text-7xl transition-colors font-bold font-jetbrains-mono", {
-          "text-blue-500": activeType === "break",
-          "text-red-500": activeType === "focus",
-        })}
-      >
-        {formatTime(timeLeft)}
-      </h2>
-      {!isRunning ? (
-        <button
-          onClick={handleStart}
-          className={clsx(
-            " text-white transition-colors font-semibold text-2xl px-4 py-2 relative rounded-lg min-w-60 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full after:bg-black after:opacity-0 after:rounded-[inherit] after:transition-opacity hover:after:opacity-hover active:after:opacity-active focus:after:opacity-focus cursor-pointer",
-            {
-              "bg-blue-500": activeType === "break",
-              "bg-red-500": activeType === "focus",
-            }
-          )}
-        >
-          Start
-        </button>
-      ) : (
-        <button
-          onClick={handlePause}
-          className={clsx(
-            "text-white transition-colors font-semibold text-2xl px-4 py-2 relative rounded-lg min-w-60 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full after:bg-black after:opacity-0 after:rounded-[inherit] after:transition-opacity hover:after:opacity-hover active:after:opacity-active focus:after:opacity-focus cursor-pointer",
-            {
-              "bg-blue-500": activeType === "break",
-              "bg-red-500": activeType === "focus",
-            }
-          )}
-        >
-          Pause
-        </button>
-      )}
-      <button
-        onClick={handleReset}
-        className={clsx(
-          "bg-white transition-colors border font-semibold text-2xl px-4 py-2 relative rounded-lg min-w-60 after:content-[''] after:absolute after:top-0 after:left-0 after:w-full after:h-full  after:opacity-0 after:rounded-[inherit] after:transition-opacity hover:after:opacity-hover active:after:opacity-active focus:after:opacity-focus cursor-pointer",
-          {
-            "border-blue-500 text-blue-500 after:bg-blue-500": activeType === "break",
-            "border-red-500 text-red-500 after:bg-red-500": activeType === "focus",
-          }
-        )}
-      >
-        Reset
-      </button>
-      <SkipSession activeType={activeType} handleSchemeCompletion={handleSchemeCompletion} isRunning={isRunning} />
     </div>
   );
 };
