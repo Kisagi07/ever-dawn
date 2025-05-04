@@ -14,3 +14,8 @@ interface IteratingScheme {
   type: "focus" | "break";
   time: number;
 }
+
+interface DayFocus {
+  date: string;
+  total: number;
+}

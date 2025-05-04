@@ -22,6 +22,7 @@ import { Label } from "@/components/ui/label";
 import updateDailyTarget from "@/lib/updateDailyTarget";
 import getDailyTarget from "@/lib/getDailyTarget";
 import { Badge } from "@/components/ui/badge";
+import updateTodayTotalFocus from "@/lib/updateTodayTotalFocus";
 
 const SolCycle = () => {
   const searchParams = useSearchParams();
@@ -104,6 +105,15 @@ const SolCycle = () => {
     [scheme]
   );
 
+  const addTodayTotalFocus = async (minute: number) => {
+    const newTotal = todayTotalFocus + minute;
+    setTodayTotalFocus(newTotal);
+    const response = await updateTodayTotalFocus(newTotal);
+    if (response === "FAIL") {
+      toast("Failed in updating today total focus", "red");
+    }
+  };
+
   const handleSchemeCompletion = useCallback(
     (skipStarAdd: boolean = false) => {
       sendNotification();
@@ -113,6 +123,7 @@ const SolCycle = () => {
           switchDefaultScheme("break");
           if (skipStarAdd) {
             addMinuteToStar(scheme.focus);
+            addTodayTotalFocus(scheme.focus);
           }
         } else {
           switchDefaultScheme("focus");
@@ -122,6 +133,7 @@ const SolCycle = () => {
         // remove the first element from the array
         if (completedSession && completedSession.type === "focus" && !skipStarAdd) {
           addMinuteToStar(completedSession.time);
+          addTodayTotalFocus(completedSession.time);
         }
         if (nextSession) {
           setActiveType(nextSession.type);
@@ -162,17 +174,19 @@ const SolCycle = () => {
           break;
       }
     } else {
-      setTimeLeft(scheme[0].time * 60);
-      setActiveType(scheme[0].type);
+      if (scheme.length > 0) {
+        setTimeLeft(scheme[0].time * 60);
+        setActiveType(scheme[0].type);
+      } else {
+        setTimeLeft(0);
+      }
     }
     setEndTime(null);
   };
 
   const handleSettingSave = async () => {
     const result = await updateDailyTarget(Number(dailyTarget));
-    if (result.status === "success") {
-      toast("Daily target set", "blue");
-    } else {
+    if (result.status !== "success") {
       toast("Daily target failed to update", "red");
     }
   };
