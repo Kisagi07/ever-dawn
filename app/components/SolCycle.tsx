@@ -320,7 +320,12 @@ const SolCycle = () => {
           )}
         </div>
         {Number(dailyTarget) > 0 && (
-          <Badge variant="outline">
+          <Badge
+            variant="outline"
+            className={clsx({
+              "border-emerald-500 text-emerald-500": todayTotalFocus >= Number(dailyTarget),
+            })}
+          >
             {todayTotalFocus} / {dailyTarget}
           </Badge>
         )}
