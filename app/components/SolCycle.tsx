@@ -1,29 +1,20 @@
 "use client";
 
-import { FocusEvent, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import BreadCrumb from "../components/BreadCrumb";
 import { toast } from "../components/Toast";
-import Tooltip from "../components/Tooltip";
 import clsx from "clsx";
-import StarSelect from "../components/StarSelect";
 import updateStar from "../libs/updateStar";
 import { useSearchParams } from "next/navigation";
 import playSound from "@/utils/playSound";
 import formatTime from "@/utils/formatTime";
 import SkipSession from "@/components/pages/sol-cycle/SkipSession";
 import { Button } from "@/components/ui/button";
-import { Settings } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import handleKeydownOnlyNumber from "@/lib/handleKeydownOnlyNumber";
-import { handleBlurIndicator, handleFocusIndicator } from "@/lib/handleInputFocusBlur";
-import { Label } from "@/components/ui/label";
-import updateDailyTarget from "@/lib/updateDailyTarget";
 import getDailyTarget from "@/lib/getDailyTarget";
 import { Badge } from "@/components/ui/badge";
 import updateTodayTotalFocus from "@/lib/updateTodayTotalFocus";
 import getTodayTotalFocus from "@/lib/getTodayTotalFocus";
+import Settings from "@/components/pages/sol-cycle/Settings";
 
 const SolCycle = () => {
   const searchParams = useSearchParams();
@@ -36,7 +27,6 @@ const SolCycle = () => {
   const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [isRunning, setIsRunning] = useState(false);
   const [endTime, setEndTime] = useState<number | null>(null);
-  const [openStarSelect, setOpenStarSelect] = useState(false);
   const [starSelected, setStarSelected] = useState<Star | null>(null);
   const [dailyTarget, setDailyTarget] = useState("0");
   const [todayTotalFocus, setTodayTotalFocus] = useState(0);
@@ -106,14 +96,17 @@ const SolCycle = () => {
     [scheme]
   );
 
-  const addTodayTotalFocus = async (minute: number) => {
-    const newTotal = todayTotalFocus + minute;
-    setTodayTotalFocus(newTotal);
-    const response = await updateTodayTotalFocus(newTotal);
-    if (response === "FAIL") {
-      toast("Failed in updating today total focus", "red");
-    }
-  };
+  const addTodayTotalFocus = useCallback(
+    async (minute: number) => {
+      const newTotal = todayTotalFocus + minute;
+      setTodayTotalFocus(newTotal);
+      const response = await updateTodayTotalFocus(newTotal);
+      if (response === "FAIL") {
+        toast("Failed in updating today total focus", "red");
+      }
+    },
+    [todayTotalFocus]
+  );
 
   const handleSchemeCompletion = useCallback(
     (skipStarAdd: boolean = false) => {
@@ -145,7 +138,7 @@ const SolCycle = () => {
         }
       }
     },
-    [activeType, addMinuteToStar, getTheNextIterateScheme, scheme, sendNotification, stopPomodoro, switchDefaultScheme]
+    [activeType, addMinuteToStar, getTheNextIterateScheme, scheme, sendNotification, stopPomodoro, switchDefaultScheme, addTodayTotalFocus]
   );
 
   const handleStart = () => {
@@ -183,13 +176,6 @@ const SolCycle = () => {
       }
     }
     setEndTime(null);
-  };
-
-  const handleSettingSave = async () => {
-    const result = await updateDailyTarget(Number(dailyTarget));
-    if (result.status !== "success") {
-      toast("Daily target failed to update", "red");
-    }
   };
 
   useEffect(() => {
@@ -277,48 +263,9 @@ const SolCycle = () => {
       <div className="bg-white p-6 rounded-lg shadow-lg flex items-center justify-center flex-col gap-4">
         <div className="w-full flex items-center justify-between">
           <BreadCrumb />
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button size="icon" variant="ghost">
-                <Settings />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent>
-              <h3>Settings</h3>
-              <Separator className="my-4" />
-              <div className="grid w-full items-center gap-1.5">
-                <Label htmlFor="daily-target">Daily Target</Label>
-                <Input
-                  id="daily-target"
-                  placeholder="Daily Focus Target"
-                  value={dailyTarget}
-                  onChange={(e) => setDailyTarget(e.target.value)}
-                  onKeyDown={handleKeydownOnlyNumber}
-                  onFocus={(e) => handleFocusIndicator(e, " Minutes")}
-                  onBlur={(e) => handleBlurIndicator(e, " Minutes")}
-                />
-              </div>
-              <Button onClick={handleSettingSave} className="mt-4 bg-red-500 text-white hover:bg-red-600">
-                Save
-              </Button>
-            </PopoverContent>
-          </Popover>
+          <Settings dailyTarget={dailyTarget} setDailyTarget={setDailyTarget} />
         </div>
-        <div className="relative">
-          <Tooltip text="Change Active Star">
-            <button onClick={() => setOpenStarSelect(!openStarSelect)} className={clsx("font-medium transition-colors cursor-pointer")}>
-              {starSelected ? starSelected.name : "Select Star"}
-            </button>
-          </Tooltip>
-          {openStarSelect && (
-            <StarSelect
-              starSelected={(star) => {
-                setStarSelected(star);
-                setOpenStarSelect(false);
-              }}
-            />
-          )}
-        </div>
+
         {Number(dailyTarget) > 0 && (
           <Badge
             variant="outline"
