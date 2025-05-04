@@ -23,6 +23,7 @@ import updateDailyTarget from "@/lib/updateDailyTarget";
 import getDailyTarget from "@/lib/getDailyTarget";
 import { Badge } from "@/components/ui/badge";
 import updateTodayTotalFocus from "@/lib/updateTodayTotalFocus";
+import getTodayTotalFocus from "@/lib/getTodayTotalFocus";
 
 const SolCycle = () => {
   const searchParams = useSearchParams();
@@ -260,6 +261,13 @@ const SolCycle = () => {
         }
       } else {
         setDailyTarget(response.toString());
+      }
+    });
+    getTodayTotalFocus().then((response) => {
+      if (response === "FAIL") {
+        toast("Failed to get today total focus", "red");
+      } else if (response) {
+        setTodayTotalFocus(response);
       }
     });
   }, []);

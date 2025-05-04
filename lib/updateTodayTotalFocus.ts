@@ -1,15 +1,12 @@
 "use server";
 
 import redis from "@/app/upstash";
+import getTodayDateString from "@/utils/getTodayDateString";
 
 const updateTodayTotalFocus = async (focus: number) => {
   try {
     // Get today date
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
-    const date = now.getDate();
-    const dateString = `${year}-${month + 1}-${date}`;
+    const dateString = getTodayDateString();
 
     // Find today total focus
     let daysFocus = await redis.get<DayFocus[]>("total-focus");
