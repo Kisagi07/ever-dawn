@@ -16,7 +16,7 @@ const updateTodayTotalFocus = async (focus: number) => {
       });
 
       if (today) {
-        today.total += focus;
+        today.total = focus;
         const todayIndex = daysFocus.findIndex((day) => day.date === dateString);
         if (todayIndex !== -1) {
           daysFocus[todayIndex] = today;
