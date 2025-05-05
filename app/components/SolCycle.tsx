@@ -117,8 +117,8 @@ const SolCycle = () => {
           switchDefaultScheme("break");
           if (skipStarAdd) {
             addMinuteToStar(scheme.focus);
-            addTodayTotalFocus(scheme.focus);
           }
+          addTodayTotalFocus(scheme.focus);
         } else {
           switchDefaultScheme("focus");
         }
