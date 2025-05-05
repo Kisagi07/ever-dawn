@@ -178,7 +178,7 @@ const Page = () => {
       setFailedTodayGoalFetch(false);
       setTodayGoal("");
     }
-  }, [focusTarget]);
+  }, [focusTarget, failedTodayGoalFetch, todayGoal]);
 
   return (
     <div className="py-8">
