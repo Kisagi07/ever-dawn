@@ -124,7 +124,7 @@ const Page = () => {
   };
   const handlePercentageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    if (Number(value) > 60) {
+    if (Number(value) > 100) {
       e.target.value = perncetageOldValue.current
         ? perncetageOldValue.current.toString()
         : "";
