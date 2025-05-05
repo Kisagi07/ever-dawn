@@ -19,3 +19,7 @@ interface DayFocus {
   date: string;
   total: number;
 }
+
+interface IteratingExtended extends IteratingScheme {
+  id: string;
+}

@@ -16,11 +16,6 @@ import updateTodayTotalFocus from "@/lib/updateTodayTotalFocus";
 import getTodayTotalFocus from "@/lib/getTodayTotalFocus";
 import Settings from "@/components/pages/sol-cycle/Settings";
 import StarSelection from "@/components/pages/sol-cycle/StarSelection";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-
-interface IteratingExtended extends IteratingScheme {
-  id: string;
-}
 
 const SolCycle = () => {
   const searchParams = useSearchParams();
@@ -36,7 +31,6 @@ const SolCycle = () => {
   const [starSelected, setStarSelected] = useState<Star | null>(null);
   const [dailyTarget, setDailyTarget] = useState("0");
   const [todayTotalFocus, setTodayTotalFocus] = useState(0);
-  const [badgeFade, setBadgeFade] = useState(false);
   const [activeSchemeIndex, setActiveSchemeIndex] = useState(0);
 
   const starSelectedPrevious = useRef<Star | null>(null);
