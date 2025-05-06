@@ -11,10 +11,11 @@ import formatTime from "@/utils/formatTime";
 import SkipSession from "@/components/pages/sol-cycle/SkipSession";
 import { Button } from "@/components/ui/button";
 import getDailyTarget from "@/lib/getDailyTarget";
-import { Badge } from "@/components/ui/badge";
 import updateTodayTotalFocus from "@/lib/updateTodayTotalFocus";
 import getTodayTotalFocus from "@/lib/getTodayTotalFocus";
 import Settings from "@/components/pages/sol-cycle/Settings";
+
+import BadgeAndManualAddMinute from "@/components/pages/sol-cycle/BadgeAndManualAddMinute";
 
 const SolCycle = () => {
   const searchParams = useSearchParams();
@@ -96,14 +97,18 @@ const SolCycle = () => {
     [scheme]
   );
 
+  const callUpdateTotalFocus = async (newTotal: number) => {
+    const response = await updateTodayTotalFocus(newTotal);
+    if (response === "FAIL") {
+      toast("Failed in updating today total focus", "red");
+    }
+  };
+
   const addTodayTotalFocus = useCallback(
     async (minute: number) => {
       const newTotal = todayTotalFocus + minute;
       setTodayTotalFocus(newTotal);
-      const response = await updateTodayTotalFocus(newTotal);
-      if (response === "FAIL") {
-        toast("Failed in updating today total focus", "red");
-      }
+      await callUpdateTotalFocus(newTotal);
     },
     [todayTotalFocus]
   );
@@ -259,69 +264,61 @@ const SolCycle = () => {
   }, []);
 
   return (
-    <div className="w-full h-screen flex items-center justify-center">
-      <div className="bg-white p-6 rounded-lg shadow-lg flex items-center justify-center flex-col gap-4">
-        <div className="w-full flex items-center justify-between">
-          <BreadCrumb />
-          <Settings dailyTarget={dailyTarget} setDailyTarget={setDailyTarget} />
+    <>
+      <div className="w-full h-screen flex items-center justify-center">
+        <div className="bg-white p-6 rounded-lg shadow-lg flex items-center justify-center flex-col gap-4">
+          <div className="w-full flex items-center justify-between">
+            <BreadCrumb />
+            <Settings dailyTarget={dailyTarget} setDailyTarget={setDailyTarget} />
+          </div>
+          <BadgeAndManualAddMinute dailyTarget={Number(dailyTarget)} callUpdateTotalFocus={callUpdateTotalFocus} todayTotalFocus={todayTotalFocus} />
+          <h2
+            className={clsx("text-7xl transition-colors font-bold font-jetbrains-mono", {
+              "text-blue-500": activeType === "break",
+              "text-red-500": activeType === "focus",
+            })}
+          >
+            {formatTime(timeLeft)}
+          </h2>
+          {!isRunning ? (
+            <Button
+              onClick={handleStart}
+              className={clsx("w-full", {
+                "bg-blue-500 hover:bg-blue-600": activeType === "break",
+                "bg-red-500 hover:bg-red-600": activeType === "focus",
+              })}
+              size="lg"
+            >
+              Start
+            </Button>
+          ) : (
+            <Button
+              onClick={handlePause}
+              className={clsx("w-full", {
+                "bg-blue-500 hover:bg-blue-600": activeType === "break",
+                "bg-red-500 hover:bg-red-600": activeType === "focus",
+              })}
+              size="lg"
+              variant="outline"
+            >
+              Pause
+            </Button>
+          )}
+          <Button
+            onClick={handleReset}
+            className={clsx("w-full", {
+              "border-blue-500 text-blue-500 hover:text-blue-600 hover:bg-blue-50": activeType === "break",
+              "border-red-500 text-red-500 hover:text-red-600 hover:bg-red-50": activeType === "focus",
+            })}
+            size="lg"
+            variant="outline"
+          >
+            Reset
+          </Button>
+          <SkipSession activeType={activeType} handleSchemeCompletion={handleSchemeCompletion} isRunning={isRunning} />
         </div>
-
-        {Number(dailyTarget) > 0 && (
-          <Badge
-            variant="outline"
-            className={clsx({
-              "border-emerald-500 text-emerald-500": todayTotalFocus >= Number(dailyTarget),
-            })}
-          >
-            {todayTotalFocus} / {dailyTarget}
-          </Badge>
-        )}
-        <h2
-          className={clsx("text-7xl transition-colors font-bold font-jetbrains-mono", {
-            "text-blue-500": activeType === "break",
-            "text-red-500": activeType === "focus",
-          })}
-        >
-          {formatTime(timeLeft)}
-        </h2>
-        {!isRunning ? (
-          <Button
-            onClick={handleStart}
-            className={clsx("w-full", {
-              "bg-blue-500 hover:bg-blue-600": activeType === "break",
-              "bg-red-500 hover:bg-red-600": activeType === "focus",
-            })}
-            size="lg"
-          >
-            Start
-          </Button>
-        ) : (
-          <Button
-            onClick={handlePause}
-            className={clsx("w-full", {
-              "bg-blue-500 hover:bg-blue-600": activeType === "break",
-              "bg-red-500 hover:bg-red-600": activeType === "focus",
-            })}
-            size="lg"
-            variant="outline"
-          >
-            Pause
-          </Button>
-        )}
-        <Button
-          onClick={handleReset}
-          className={clsx("w-full", {
-            "border-blue-500 text-blue-500 hover:text-blue-600 hover:bg-blue-50": activeType === "break",
-            "border-red-500 text-red-500 hover:text-red-600 hover:bg-red-50": activeType === "focus",
-          })}
-          size="lg"
-          variant="outline"
-        >
-          Reset
-        </Button>
-        <SkipSession activeType={activeType} handleSchemeCompletion={handleSchemeCompletion} isRunning={isRunning} />
       </div>
-    </div>
+    </>
   );
 };
 export default SolCycle;
