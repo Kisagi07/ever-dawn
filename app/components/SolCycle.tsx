@@ -15,6 +15,11 @@ import { Badge } from "@/components/ui/badge";
 import updateTodayTotalFocus from "@/lib/updateTodayTotalFocus";
 import getTodayTotalFocus from "@/lib/getTodayTotalFocus";
 import Settings from "@/components/pages/sol-cycle/Settings";
+import { ContextMenu, ContextMenuItem, ContextMenuTrigger, ContextMenuContent } from "@/components/ui/context-menu";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import handleKeydownOnlyNumber from "@/lib/handleKeydownOnlyNumber";
+import { Loader2 } from "lucide-react";
 
 const SolCycle = () => {
   const searchParams = useSearchParams();
@@ -30,6 +35,9 @@ const SolCycle = () => {
   const [starSelected, setStarSelected] = useState<Star | null>(null);
   const [dailyTarget, setDailyTarget] = useState("0");
   const [todayTotalFocus, setTodayTotalFocus] = useState(0);
+  const [manualAddMinute, setManualAddMinute] = useState("0");
+  const [manuallyAddingMinute, setManuallyAddingMinute] = useState(false);
+  const [openManuallyAddMinuteDialog, setOpenManuallyAddMinuteDialog] = useState(false);
 
   const starSelectedPrevious = useRef<Star | null>(null);
 
@@ -96,14 +104,18 @@ const SolCycle = () => {
     [scheme]
   );
 
+  const callUpdateTotalFocus = async (newTotal: number) => {
+    const response = await updateTodayTotalFocus(newTotal);
+    if (response === "FAIL") {
+      toast("Failed in updating today total focus", "red");
+    }
+  };
+
   const addTodayTotalFocus = useCallback(
     async (minute: number) => {
       const newTotal = todayTotalFocus + minute;
       setTodayTotalFocus(newTotal);
-      const response = await updateTodayTotalFocus(newTotal);
-      if (response === "FAIL") {
-        toast("Failed in updating today total focus", "red");
-      }
+      await callUpdateTotalFocus(newTotal);
     },
     [todayTotalFocus]
   );
@@ -176,6 +188,14 @@ const SolCycle = () => {
       }
     }
     setEndTime(null);
+  };
+
+  const handleAddManualMinute = async () => {
+    const newTotal = todayTotalFocus + +manualAddMinute;
+    setManuallyAddingMinute(true);
+    await callUpdateTotalFocus(newTotal);
+    setManuallyAddingMinute(false);
+    setOpenManuallyAddMinuteDialog(false);
   };
 
   useEffect(() => {
@@ -259,69 +279,100 @@ const SolCycle = () => {
   }, []);
 
   return (
-    <div className="w-full h-screen flex items-center justify-center">
-      <div className="bg-white p-6 rounded-lg shadow-lg flex items-center justify-center flex-col gap-4">
-        <div className="w-full flex items-center justify-between">
-          <BreadCrumb />
-          <Settings dailyTarget={dailyTarget} setDailyTarget={setDailyTarget} />
-        </div>
+    <>
+      <div className="w-full h-screen flex items-center justify-center">
+        <div className="bg-white p-6 rounded-lg shadow-lg flex items-center justify-center flex-col gap-4">
+          <div className="w-full flex items-center justify-between">
+            <BreadCrumb />
+            <Settings dailyTarget={dailyTarget} setDailyTarget={setDailyTarget} />
+          </div>
 
-        {Number(dailyTarget) > 0 && (
-          <Badge
-            variant="outline"
-            className={clsx({
-              "border-emerald-500 text-emerald-500": todayTotalFocus >= Number(dailyTarget),
+          {Number(dailyTarget) > 0 && (
+            <Dialog open={openManuallyAddMinuteDialog} onOpenChange={setOpenManuallyAddMinuteDialog}>
+              <ContextMenu>
+                <ContextMenuTrigger asChild>
+                  <Badge
+                    variant="outline"
+                    className={clsx({
+                      "border-emerald-500 text-emerald-500": todayTotalFocus >= Number(dailyTarget),
+                    })}
+                  >
+                    {todayTotalFocus} / {dailyTarget}
+                  </Badge>
+                </ContextMenuTrigger>
+                <ContextMenuContent>
+                  <DialogTrigger asChild>
+                    <ContextMenuItem>Add Minutes</ContextMenuItem>
+                  </DialogTrigger>
+                </ContextMenuContent>
+              </ContextMenu>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add Minute Manually to Total Focus</DialogTitle>
+                  <DialogDescription>This action cannot be undone. This will permanently add focus minute to today total</DialogDescription>
+                </DialogHeader>
+                <Input
+                  placeholder="Minute"
+                  value={manualAddMinute}
+                  onChange={(e) => setManualAddMinute(e.target.value)}
+                  onKeyDown={handleKeydownOnlyNumber}
+                />
+                <DialogFooter>
+                  <Button disabled={manuallyAddingMinute} onClick={handleAddManualMinute}>
+                    {manuallyAddingMinute && <Loader2 className="animate-spin" />}
+                    Submit
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
+          <h2
+            className={clsx("text-7xl transition-colors font-bold font-jetbrains-mono", {
+              "text-blue-500": activeType === "break",
+              "text-red-500": activeType === "focus",
             })}
           >
-            {todayTotalFocus} / {dailyTarget}
-          </Badge>
-        )}
-        <h2
-          className={clsx("text-7xl transition-colors font-bold font-jetbrains-mono", {
-            "text-blue-500": activeType === "break",
-            "text-red-500": activeType === "focus",
-          })}
-        >
-          {formatTime(timeLeft)}
-        </h2>
-        {!isRunning ? (
+            {formatTime(timeLeft)}
+          </h2>
+          {!isRunning ? (
+            <Button
+              onClick={handleStart}
+              className={clsx("w-full", {
+                "bg-blue-500 hover:bg-blue-600": activeType === "break",
+                "bg-red-500 hover:bg-red-600": activeType === "focus",
+              })}
+              size="lg"
+            >
+              Start
+            </Button>
+          ) : (
+            <Button
+              onClick={handlePause}
+              className={clsx("w-full", {
+                "bg-blue-500 hover:bg-blue-600": activeType === "break",
+                "bg-red-500 hover:bg-red-600": activeType === "focus",
+              })}
+              size="lg"
+              variant="outline"
+            >
+              Pause
+            </Button>
+          )}
           <Button
-            onClick={handleStart}
+            onClick={handleReset}
             className={clsx("w-full", {
-              "bg-blue-500 hover:bg-blue-600": activeType === "break",
-              "bg-red-500 hover:bg-red-600": activeType === "focus",
+              "border-blue-500 text-blue-500 hover:text-blue-600 hover:bg-blue-50": activeType === "break",
+              "border-red-500 text-red-500 hover:text-red-600 hover:bg-red-50": activeType === "focus",
             })}
             size="lg"
-          >
-            Start
-          </Button>
-        ) : (
-          <Button
-            onClick={handlePause}
-            className={clsx("w-full", {
-              "bg-blue-500 hover:bg-blue-600": activeType === "break",
-              "bg-red-500 hover:bg-red-600": activeType === "focus",
-            })}
-            size="lg"
             variant="outline"
           >
-            Pause
+            Reset
           </Button>
-        )}
-        <Button
-          onClick={handleReset}
-          className={clsx("w-full", {
-            "border-blue-500 text-blue-500 hover:text-blue-600 hover:bg-blue-50": activeType === "break",
-            "border-red-500 text-red-500 hover:text-red-600 hover:bg-red-50": activeType === "focus",
-          })}
-          size="lg"
-          variant="outline"
-        >
-          Reset
-        </Button>
-        <SkipSession activeType={activeType} handleSchemeCompletion={handleSchemeCompletion} isRunning={isRunning} />
+          <SkipSession activeType={activeType} handleSchemeCompletion={handleSchemeCompletion} isRunning={isRunning} />
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 export default SolCycle;
