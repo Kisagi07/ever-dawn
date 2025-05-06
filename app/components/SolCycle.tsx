@@ -11,15 +11,11 @@ import formatTime from "@/utils/formatTime";
 import SkipSession from "@/components/pages/sol-cycle/SkipSession";
 import { Button } from "@/components/ui/button";
 import getDailyTarget from "@/lib/getDailyTarget";
-import { Badge } from "@/components/ui/badge";
 import updateTodayTotalFocus from "@/lib/updateTodayTotalFocus";
 import getTodayTotalFocus from "@/lib/getTodayTotalFocus";
 import Settings from "@/components/pages/sol-cycle/Settings";
-import { ContextMenu, ContextMenuItem, ContextMenuTrigger, ContextMenuContent } from "@/components/ui/context-menu";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import handleKeydownOnlyNumber from "@/lib/handleKeydownOnlyNumber";
-import { Loader2 } from "lucide-react";
+
+import BadgeAndManualAddMinute from "@/components/pages/sol-cycle/BadgeAndManualAddMinute";
 
 const SolCycle = () => {
   const searchParams = useSearchParams();
@@ -35,9 +31,6 @@ const SolCycle = () => {
   const [starSelected, setStarSelected] = useState<Star | null>(null);
   const [dailyTarget, setDailyTarget] = useState("0");
   const [todayTotalFocus, setTodayTotalFocus] = useState(0);
-  const [manualAddMinute, setManualAddMinute] = useState("0");
-  const [manuallyAddingMinute, setManuallyAddingMinute] = useState(false);
-  const [openManuallyAddMinuteDialog, setOpenManuallyAddMinuteDialog] = useState(false);
 
   const starSelectedPrevious = useRef<Star | null>(null);
 
@@ -190,14 +183,6 @@ const SolCycle = () => {
     setEndTime(null);
   };
 
-  const handleAddManualMinute = async () => {
-    const newTotal = todayTotalFocus + +manualAddMinute;
-    setManuallyAddingMinute(true);
-    await callUpdateTotalFocus(newTotal);
-    setManuallyAddingMinute(false);
-    setOpenManuallyAddMinuteDialog(false);
-  };
-
   useEffect(() => {
     if (Notification.permission === "default") {
       Notification.requestPermission();
@@ -286,46 +271,7 @@ const SolCycle = () => {
             <BreadCrumb />
             <Settings dailyTarget={dailyTarget} setDailyTarget={setDailyTarget} />
           </div>
-
-          {Number(dailyTarget) > 0 && (
-            <Dialog open={openManuallyAddMinuteDialog} onOpenChange={setOpenManuallyAddMinuteDialog}>
-              <ContextMenu>
-                <ContextMenuTrigger asChild>
-                  <Badge
-                    variant="outline"
-                    className={clsx({
-                      "border-emerald-500 text-emerald-500": todayTotalFocus >= Number(dailyTarget),
-                    })}
-                  >
-                    {todayTotalFocus} / {dailyTarget}
-                  </Badge>
-                </ContextMenuTrigger>
-                <ContextMenuContent>
-                  <DialogTrigger asChild>
-                    <ContextMenuItem>Add Minutes</ContextMenuItem>
-                  </DialogTrigger>
-                </ContextMenuContent>
-              </ContextMenu>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Add Minute Manually to Total Focus</DialogTitle>
-                  <DialogDescription>This action cannot be undone. This will permanently add focus minute to today total</DialogDescription>
-                </DialogHeader>
-                <Input
-                  placeholder="Minute"
-                  value={manualAddMinute}
-                  onChange={(e) => setManualAddMinute(e.target.value)}
-                  onKeyDown={handleKeydownOnlyNumber}
-                />
-                <DialogFooter>
-                  <Button disabled={manuallyAddingMinute} onClick={handleAddManualMinute}>
-                    {manuallyAddingMinute && <Loader2 className="animate-spin" />}
-                    Submit
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          )}
+          <BadgeAndManualAddMinute dailyTarget={Number(dailyTarget)} callUpdateTotalFocus={callUpdateTotalFocus} todayTotalFocus={todayTotalFocus} />
           <h2
             className={clsx("text-7xl transition-colors font-bold font-jetbrains-mono", {
               "text-blue-500": activeType === "break",
