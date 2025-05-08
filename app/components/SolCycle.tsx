@@ -16,6 +16,9 @@ import getTodayTotalFocus from "@/lib/getTodayTotalFocus";
 import Settings from "@/components/pages/sol-cycle/Settings";
 
 import BadgeAndManualAddMinute from "@/components/pages/sol-cycle/BadgeAndManualAddMinute";
+import Time from "../classes/Time";
+import calculateRythmScheme from "@/utils/calculateRythmScheme";
+import getTodayRemainingTodayGoal from "@/lib/getTodayRemainingTodayGoal";
 
 const SolCycle = () => {
   const searchParams = useSearchParams();
@@ -31,6 +34,8 @@ const SolCycle = () => {
   const [starSelected, setStarSelected] = useState<Star | null>(null);
   const [dailyTarget, setDailyTarget] = useState("0");
   const [todayTotalFocus, setTodayTotalFocus] = useState(0);
+
+  const recalculateOnNextSwitch = useRef(false);
 
   const starSelectedPrevious = useRef<Star | null>(null);
 
@@ -80,9 +85,38 @@ const SolCycle = () => {
     setEndTime(null);
   }, [noSchemeRemaining]);
 
-  const getTheNextIterateScheme = useCallback(() => {
-    const newScheme = [...(scheme as IteratingScheme[])];
+  const padTime = (time: number) => {
+    return time.toString().padStart(2, "0");
+  };
+
+  const getTheNextIterateScheme = useCallback(async () => {
+    let newScheme = [...(scheme as IteratingScheme[])];
     const completedSession = newScheme.shift();
+
+    if (recalculateOnNextSwitch.current) {
+      const type = searchParams.get("type") as "percentage" | "today goal";
+      let endTime: string | Time = searchParams.get("end-time") as string;
+      endTime = new Time(endTime);
+      const now = new Date();
+      const currentTime = new Time(`${padTime(now.getHours())}:${padTime(now.getMinutes())}:${padTime(now.getSeconds())}`);
+      const maxFocus = searchParams.get("max-focus") as string;
+
+      const options: { percentage?: number; todayGoal?: number } = {};
+      if (type === "percentage") {
+        const percentage = searchParams.get("percentage-value") as string;
+        options.percentage = +percentage;
+      } else {
+        const leftOverGoal = await getTodayRemainingTodayGoal();
+        if (typeof leftOverGoal === "number") {
+          options.todayGoal = leftOverGoal;
+        }
+      }
+
+      const recalculatedScheme = calculateRythmScheme(currentTime, endTime, type, +maxFocus, options);
+      const parsedScheme = transformScheme(recalculatedScheme);
+      newScheme = parsedScheme;
+      recalculateOnNextSwitch.current = false;
+    }
     const nextSession = newScheme[0];
     setScheme(newScheme);
     return { completedSession, nextSession };
@@ -98,10 +132,10 @@ const SolCycle = () => {
   );
 
   const callUpdateTotalFocus = async (newTotal: number) => {
-    const response = await updateTodayTotalFocus(newTotal);
-    if (response === "FAIL") {
-      toast("Failed in updating today total focus", "red");
-    }
+    // const response = await updateTodayTotalFocus(newTotal);
+    // if (response === "FAIL") {
+    //   toast("Failed in updating today total focus", "red");
+    // }
   };
 
   const addTodayTotalFocus = useCallback(
@@ -114,7 +148,7 @@ const SolCycle = () => {
   );
 
   const handleSchemeCompletion = useCallback(
-    (skipStarAdd: boolean = false) => {
+    async (skipStarAdd: boolean = false) => {
       sendNotification();
       playSound();
       if (!Array.isArray(scheme)) {
@@ -128,7 +162,7 @@ const SolCycle = () => {
           switchDefaultScheme("focus");
         }
       } else {
-        const { completedSession, nextSession } = getTheNextIterateScheme();
+        const { completedSession, nextSession } = await getTheNextIterateScheme();
         // remove the first element from the array
         if (completedSession && completedSession.type === "focus" && !skipStarAdd) {
           addMinuteToStar(completedSession.time);
@@ -154,6 +188,7 @@ const SolCycle = () => {
 
   const handlePause = () => {
     setIsRunning(false);
+    recalculateOnNextSwitch.current = true;
     if (endTime) {
       const remaining = Math.round((endTime - Date.now()) / 1000);
       setTimeLeft(remaining > 0 ? remaining : 0);
@@ -183,31 +218,54 @@ const SolCycle = () => {
     setEndTime(null);
   };
 
+  const transformScheme = (schemeToBeParsed: { focus: number; break: number; id: string }[] | string) => {
+    let parsedScheme;
+    if (typeof schemeToBeParsed === "string") {
+      parsedScheme = JSON.parse(schemeToBeParsed) as { focus: number; break: number; id: string }[];
+    } else {
+      parsedScheme = schemeToBeParsed;
+    }
+    const generatedScheme: IteratingScheme[] = [];
+    parsedScheme.forEach((scheme) => {
+      generatedScheme.push({
+        type: "focus",
+        time: scheme.focus,
+      });
+      generatedScheme.push({
+        type: "break",
+        time: scheme.break,
+      });
+    });
+
+    return generatedScheme;
+  };
   useEffect(() => {
     if (Notification.permission === "default") {
       Notification.requestPermission();
     }
     const customScheme = searchParams.get("scheme");
     if (customScheme) {
-      const parsedScheme = JSON.parse(customScheme) as {
-        focus: number;
-        break: number;
-      }[];
-      const generatedScheme: IteratingScheme[] = [];
-      parsedScheme.forEach((scheme) => {
-        generatedScheme.push({
-          type: "focus",
-          time: scheme.focus,
-        });
-        generatedScheme.push({
-          type: "break",
-          time: scheme.break,
-        });
-      });
+      // const parsedScheme = JSON.parse(customScheme) as {
+      //   focus: number;
+      //   break: number;
+      // }[];
+      // const generatedScheme: IteratingScheme[] = [];
+      // parsedScheme.forEach((scheme) => {
+      //   generatedScheme.push({
+      //     type: "focus",
+      //     time: scheme.focus,
+      //   });
+      //   generatedScheme.push({
+      //     type: "break",
+      //     time: scheme.break,
+      //   });
+      // });
+      const generatedScheme = transformScheme(customScheme);
       setScheme(generatedScheme);
       setTimeLeft(generatedScheme[0].time * 60);
       setActiveType(generatedScheme[0].type);
       newEndTime(generatedScheme[0].time);
+      console.log(generatedScheme);
     }
   }, [searchParams]);
 
