@@ -16,6 +16,7 @@ import getTodayTotalFocus from "@/lib/getTodayTotalFocus";
 import Settings from "@/components/pages/sol-cycle/Settings";
 
 import BadgeAndManualAddMinute from "@/components/pages/sol-cycle/BadgeAndManualAddMinute";
+import PauseStart from "@/components/pages/sol-cycle/PauseStart";
 
 const SolCycle = () => {
   const searchParams = useSearchParams();
@@ -146,21 +147,6 @@ const SolCycle = () => {
     [activeType, addMinuteToStar, getTheNextIterateScheme, scheme, sendNotification, stopPomodoro, switchDefaultScheme, addTodayTotalFocus]
   );
 
-  const handleStart = () => {
-    const newEndTime = Date.now() + timeLeft * 1000;
-    setEndTime(newEndTime);
-    setIsRunning(true);
-  };
-
-  const handlePause = () => {
-    setIsRunning(false);
-    if (endTime) {
-      const remaining = Math.round((endTime - Date.now()) / 1000);
-      setTimeLeft(remaining > 0 ? remaining : 0);
-    }
-    setEndTime(null);
-  };
-
   const handleReset = () => {
     setIsRunning(false);
     if (!Array.isArray(scheme)) {
@@ -271,7 +257,12 @@ const SolCycle = () => {
             <BreadCrumb />
             <Settings dailyTarget={dailyTarget} setDailyTarget={setDailyTarget} />
           </div>
-          <BadgeAndManualAddMinute dailyTarget={Number(dailyTarget)} callUpdateTotalFocus={callUpdateTotalFocus} todayTotalFocus={todayTotalFocus} />
+          <BadgeAndManualAddMinute
+            dailyTarget={Number(dailyTarget)}
+            callUpdateTotalFocus={callUpdateTotalFocus}
+            todayTotalFocus={todayTotalFocus}
+            setTodayTotalFocus={setTodayTotalFocus}
+          />
           <h2
             className={clsx("text-7xl transition-colors font-bold font-jetbrains-mono", {
               "text-blue-500": activeType === "break",
@@ -280,30 +271,15 @@ const SolCycle = () => {
           >
             {formatTime(timeLeft)}
           </h2>
-          {!isRunning ? (
-            <Button
-              onClick={handleStart}
-              className={clsx("w-full", {
-                "bg-blue-500 hover:bg-blue-600": activeType === "break",
-                "bg-red-500 hover:bg-red-600": activeType === "focus",
-              })}
-              size="lg"
-            >
-              Start
-            </Button>
-          ) : (
-            <Button
-              onClick={handlePause}
-              className={clsx("w-full", {
-                "bg-blue-500 hover:bg-blue-600": activeType === "break",
-                "bg-red-500 hover:bg-red-600": activeType === "focus",
-              })}
-              size="lg"
-              variant="outline"
-            >
-              Pause
-            </Button>
-          )}
+          <PauseStart
+            activeType={activeType}
+            endTime={endTime}
+            isRunning={isRunning}
+            setEndTime={setEndTime}
+            setIsRunning={setIsRunning}
+            setTimeLeft={setTimeLeft}
+            timeLeft={timeLeft}
+          />
           <Button
             onClick={handleReset}
             className={clsx("w-full", {
