@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import handleKeydownOnlyNumber from "@/lib/handleKeydownOnlyNumber";
 import { Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import clsx from "clsx";
 import { Button } from "@/components/ui/button";
 
@@ -12,9 +12,10 @@ interface BadgeAndManualAddMinuteProps {
   dailyTarget: number;
   todayTotalFocus: number;
   callUpdateTotalFocus: (newTotal: number) => Promise<void>;
+  setTodayTotalFocus: Dispatch<SetStateAction<number>>;
 }
 
-const BadgeAndManualAddMinute = ({ dailyTarget, todayTotalFocus, callUpdateTotalFocus }: BadgeAndManualAddMinuteProps) => {
+const BadgeAndManualAddMinute = ({ dailyTarget, todayTotalFocus, callUpdateTotalFocus, setTodayTotalFocus }: BadgeAndManualAddMinuteProps) => {
   const [manualAddMinute, setManualAddMinute] = useState("0");
   const [manuallyAddingMinute, setManuallyAddingMinute] = useState(false);
   const [openManuallyAddMinuteDialog, setOpenManuallyAddMinuteDialog] = useState(false);
@@ -23,6 +24,7 @@ const BadgeAndManualAddMinute = ({ dailyTarget, todayTotalFocus, callUpdateTotal
     const newTotal = todayTotalFocus + +manualAddMinute;
     setManuallyAddingMinute(true);
     await callUpdateTotalFocus(newTotal);
+    setTodayTotalFocus(newTotal);
     setManuallyAddingMinute(false);
     setOpenManuallyAddMinuteDialog(false);
   };
