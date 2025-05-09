@@ -171,7 +171,7 @@ const SolCycle = () => {
         }
         if (nextSession) {
           setActiveType(nextSession.type);
-          setTimeLeft(nextSession.time * 60);
+          setTimeLeft(nextSession.time);
           newEndTime(nextSession.time);
         } else {
           stopPomodoro();
@@ -194,7 +194,7 @@ const SolCycle = () => {
       }
     } else {
       if (scheme.length > 0) {
-        setTimeLeft(scheme[0].time * 60);
+        setTimeLeft(scheme[0].time);
         setActiveType(scheme[0].type);
       } else {
         setTimeLeft(0);
@@ -249,7 +249,7 @@ const SolCycle = () => {
       // });
       const generatedScheme = transformScheme(customScheme);
       setScheme(generatedScheme);
-      setTimeLeft(generatedScheme[0].time * 60);
+      setTimeLeft(generatedScheme[0].time);
       setActiveType(generatedScheme[0].type);
       newEndTime(generatedScheme[0].time);
       console.log(generatedScheme);

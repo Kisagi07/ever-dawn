@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import getTodayRemainingTodayGoal from "@/lib/getTodayRemainingTodayGoal";
 import clsx from "clsx";
 import calculateRythmScheme from "@/utils/calculateRythmScheme";
+import formatTime from "@/utils/formatTime";
 
 const Page = () => {
   const [generatedSessions, setGeneratedSessions] = useState<{ focus?: number; break: number; id: string }[]>([]);
@@ -239,8 +240,8 @@ export default Page;
 function Session({ focus, break: breakTime }: { focus?: number; break: number }) {
   return (
     <>
-      {focus && <li className=" font-medium bg-blue-100 text-blue-600 p-2 rounded-md">{focus}</li>}
-      <li className=" font-medium bg-emerald-100 text-emerald-600 p-2 rounded-md">{breakTime}</li>
+      {focus && <li className=" font-medium bg-blue-100 text-blue-600 p-2 rounded-md">{formatTime(focus)}</li>}
+      <li className=" font-medium bg-emerald-100 text-emerald-600 p-2 rounded-md">{formatTime(breakTime)}</li>
     </>
   );
 }

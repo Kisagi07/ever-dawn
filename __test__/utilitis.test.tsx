@@ -1,5 +1,6 @@
 import Time from "@/app/classes/Time";
 import calculateRythmScheme from "@/utils/calculateRythmScheme";
+import formatTime from "@/utils/formatTime";
 import { expect, test, describe, it } from "vitest";
 
 describe("Utilities", () => {
@@ -36,6 +37,13 @@ describe("Utilities", () => {
           expect.objectContaining({ focus: 1500, break: 200 }),
         ])
       );
+    });
+  });
+  describe("formatTime", () => {
+    it("Properly formatted", () => {
+      const seconds = 320;
+      const result = formatTime(seconds);
+      expect(result).toEqual("05:20");
     });
   });
 });
