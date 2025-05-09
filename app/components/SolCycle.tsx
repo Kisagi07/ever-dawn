@@ -133,10 +133,10 @@ const SolCycle = () => {
   );
 
   const callUpdateTotalFocus = async (newTotal: number) => {
-    // const response = await updateTodayTotalFocus(newTotal);
-    // if (response === "FAIL") {
-    //   toast("Failed in updating today total focus", "red");
-    // }
+    const response = await updateTodayTotalFocus(newTotal);
+    if (response === "FAIL") {
+      toast("Failed in updating today total focus", "red");
+    }
   };
 
   const addTodayTotalFocus = useCallback(
@@ -203,7 +203,7 @@ const SolCycle = () => {
     setEndTime(null);
   };
 
-  const transformScheme = (schemeToBeParsed: { focus: number; break: number; id: string }[] | string) => {
+  const transformScheme = (schemeToBeParsed: { focus?: number; break: number; id: string }[] | string) => {
     let parsedScheme;
     if (typeof schemeToBeParsed === "string") {
       parsedScheme = JSON.parse(schemeToBeParsed) as { focus: number; break: number; id: string }[];
@@ -212,10 +212,12 @@ const SolCycle = () => {
     }
     const generatedScheme: IteratingScheme[] = [];
     parsedScheme.forEach((scheme) => {
-      generatedScheme.push({
-        type: "focus",
-        time: scheme.focus,
-      });
+      if (scheme.focus) {
+        generatedScheme.push({
+          type: "focus",
+          time: scheme.focus,
+        });
+      }
       generatedScheme.push({
         type: "break",
         time: scheme.break,

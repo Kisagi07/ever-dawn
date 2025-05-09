@@ -6,7 +6,7 @@ const calculateRythmScheme = (
   hourEnd: Time,
   focusTarget: "percentage" | "today goal",
   maxFocus: number,
-  { percentage = 0, todayGoal = 0 }
+  { percentage = 0, todayGoal = 0, startWithBreak = false }
 ) => {
   const difference = hourStart.getDifference(hourEnd);
 
@@ -29,23 +29,23 @@ const calculateRythmScheme = (
     sessionChunks.push(remainingTime);
   }
   const remainingFreeTime = totalFreeTime - focusTotal;
-  const breakTime = remainingFreeTime / sessionChunks.length;
+  const breakTime = remainingFreeTime / (sessionChunks.length + (startWithBreak ? 1 : 0));
+
+  const sessionWithBreaks: { focus?: number; break: number; id: string }[] = [];
+  if (startWithBreak) {
+    sessionWithBreaks.push({ break: breakTime, id: uuidv4() });
+  }
+
   let breakCarry = 0;
-  const sessionWithBreaks = sessionChunks
-    .map((chunk) => {
-      const decimal = breakTime - Math.floor(breakTime);
-      breakCarry += decimal;
-      const bonus = Math.floor(breakCarry / 1);
-      if (bonus > 0) {
-        breakCarry = breakCarry % 1;
-      }
-      return {
-        focus: chunk,
-        break: Math.floor(breakTime) + bonus,
-        id: uuidv4(),
-      };
-    })
-    .flat();
+  sessionChunks.forEach((chunk) => {
+    const decimal = breakTime - Math.floor(breakTime);
+    breakCarry += decimal;
+    const bonus = Math.floor(breakCarry / 1);
+    if (bonus > 0) {
+      breakCarry = breakCarry % 1;
+    }
+    sessionWithBreaks.push({ focus: chunk, break: Math.floor(breakTime) + bonus, id: uuidv4() });
+  });
 
   return sessionWithBreaks;
 };

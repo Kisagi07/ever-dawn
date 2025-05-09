@@ -15,7 +15,7 @@ import clsx from "clsx";
 import calculateRythmScheme from "@/utils/calculateRythmScheme";
 
 const Page = () => {
-  const [generatedSessions, setGeneratedSessions] = useState<{ focus: number; break: number; id: string }[]>([]);
+  const [generatedSessions, setGeneratedSessions] = useState<{ focus?: number; break: number; id: string }[]>([]);
   const [focusTarget, setFocusTarget] = useState<"percentage" | "today goal">("percentage");
   const [focusPercentage, setFocusPercentage] = useState("");
   const [todayGoal, setTodayGoal] = useState("");
@@ -236,10 +236,10 @@ const Page = () => {
 };
 export default Page;
 
-function Session({ focus, break: breakTime }: { focus: number; break: number }) {
+function Session({ focus, break: breakTime }: { focus?: number; break: number }) {
   return (
     <>
-      <li className=" font-medium bg-blue-100 text-blue-600 p-2 rounded-md">{focus}</li>
+      {focus && <li className=" font-medium bg-blue-100 text-blue-600 p-2 rounded-md">{focus}</li>}
       <li className=" font-medium bg-emerald-100 text-emerald-600 p-2 rounded-md">{breakTime}</li>
     </>
   );
