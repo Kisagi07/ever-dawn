@@ -1,7 +1,7 @@
 interface Star {
   name: string;
   targetHours: number;
-  spentMinutes: number;
+  spentSeconds: number;
   createdAt?: Date;
 }
 
@@ -11,7 +11,7 @@ interface SetScheme {
 }
 
 interface IteratingScheme {
-  type: "focus" | "break";
+  type: "focus" | "break" | "long_break";
   time: number;
 }
 

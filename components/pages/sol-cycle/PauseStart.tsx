@@ -31,7 +31,7 @@ const PauseStart = ({ isRunning, timeLeft, setEndTime, setIsRunning, endTime, se
     <Button
       onClick={handleStart}
       className={clsx("w-full", {
-        "bg-blue-500 hover:bg-blue-600": activeType === "break",
+        "bg-blue-500 hover:bg-blue-600": activeType === "break" || activeType === "long_break",
         "bg-red-500 hover:bg-red-600": activeType === "focus",
       })}
       size="lg"
@@ -42,7 +42,7 @@ const PauseStart = ({ isRunning, timeLeft, setEndTime, setIsRunning, endTime, se
     <Button
       onClick={handlePause}
       className={clsx("w-full", {
-        "bg-blue-500 hover:bg-blue-600": activeType === "break",
+        "bg-blue-500 hover:bg-blue-600": activeType === "break" || activeType === "long_break",
         "bg-red-500 hover:bg-red-600": activeType === "focus",
       })}
       size="lg"

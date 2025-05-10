@@ -26,7 +26,7 @@ const StarSelect = ({ starSelected }: StarSelectProps) => {
           <div onClick={() => starSelected(star)} key={star.name}>
             <Star
               name={star.name}
-              spentHours={Math.floor(star.spentMinutes / 60)}
+              spentHours={Math.floor(star.spentSeconds / 60 / 60)}
               targetHours={star.targetHours}
               className=" !bg-white !shadow-none hover:!bg-gray-100 transition-colors cursor-pointer"
             />
