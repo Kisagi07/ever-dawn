@@ -27,17 +27,18 @@ const SolCycle = () => {
   const [scheme, setScheme] = useState<{ type: "default" | "generated"; scheme: IteratingScheme[] }>({
     type: "default",
     scheme: [
-      { type: "focus", time: 25 },
+      { type: "focus", time: 15 },
       { type: "break", time: 5 },
-      { type: "focus", time: 5 },
+      { type: "focus", time: 15 },
       { type: "break", time: 5 },
-      { type: "focus", time: 5 },
+      { type: "focus", time: 15 },
       { type: "break", time: 5 },
-      { type: "long_break", time: 15 },
+      { type: "focus", time: 15 },
+      { type: "long_break", time: 10 },
     ],
   });
   const [activeType, setActiveType] = useState("focus");
-  const [timeLeft, setTimeLeft] = useState(25 * 60);
+  const [timeLeft, setTimeLeft] = useState(15);
   const [isRunning, setIsRunning] = useState(false);
   const [endTime, setEndTime] = useState<number | null>(null);
   const [starSelected, setStarSelected] = useState<Star | null>(null);
@@ -49,16 +50,16 @@ const SolCycle = () => {
 
   const starSelectedPrevious = useRef<Star | null>(null);
 
-  const newEndTime = (minute: number) => {
-    const newEndTime = Date.now() + minute * 60 * 1000;
+  const newEndTime = (seconds: number) => {
+    const newEndTime = Date.now() + seconds * 1000;
     setEndTime(newEndTime);
   };
 
-  const addMinuteToStar = useCallback(
-    (minute: number) => {
+  const addSecondsToStar = useCallback(
+    (seconds: number) => {
       if (starSelected) {
         const newStar = { ...starSelected };
-        newStar.spentMinutes += minute;
+        newStar.spentSeconds += seconds;
         setStarSelected(newStar);
         updateStar(newStar);
       }
@@ -132,7 +133,7 @@ const SolCycle = () => {
       setScheme({ type: "generated", scheme: newScheme });
       return { completedSession, nextSession };
     } else {
-      const nextIndex = activeSchemeIndex.current + 1;
+      const nextIndex = activeSchemeIndex.current === 3 ? 0 : activeSchemeIndex.current + 1;
       const nextSession = scheme.scheme[nextIndex];
       const completedSession = scheme.scheme[activeSchemeIndex.current];
 
@@ -150,8 +151,8 @@ const SolCycle = () => {
   };
 
   const addTodayTotalFocus = useCallback(
-    async (minute: number) => {
-      const newTotal = todayTotalFocus + minute;
+    async (seconds: number) => {
+      const newTotal = todayTotalFocus + seconds;
       setTodayTotalFocus(newTotal);
       await callUpdateTotalFocus(newTotal);
     },
@@ -165,7 +166,7 @@ const SolCycle = () => {
       const { completedSession, nextSession } = await getTheNextIterateScheme();
 
       if (completedSession && completedSession.type === "focus" && !skipStarAdd) {
-        addMinuteToStar(completedSession.time);
+        addSecondsToStar(completedSession.time);
         addTodayTotalFocus(completedSession.time);
       }
 
@@ -177,7 +178,7 @@ const SolCycle = () => {
         stopPomodoro();
       }
     },
-    [activeType, addMinuteToStar, getTheNextIterateScheme, scheme, sendNotification, stopPomodoro, addTodayTotalFocus]
+    [addSecondsToStar, getTheNextIterateScheme, sendNotification, stopPomodoro, addTodayTotalFocus]
   );
 
   const transformScheme = (schemeToBeParsed: { focus?: number; break: number; id: string }[] | string) => {
@@ -248,7 +249,7 @@ const SolCycle = () => {
     }
 
     return () => clearInterval(timer);
-  }, [isRunning, endTime, activeType, addMinuteToStar, noSchemeRemaining, scheme, sendNotification, handleSchemeCompletion]);
+  }, [isRunning, endTime, activeType, addSecondsToStar, noSchemeRemaining, scheme, sendNotification, handleSchemeCompletion]);
 
   useEffect(() => {
     getDailyTarget().then((response) => {

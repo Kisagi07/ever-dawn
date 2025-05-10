@@ -41,7 +41,7 @@ const BadgeAndManualAddMinute = ({ dailyTarget, todayTotalFocus, callUpdateTotal
                   "border-emerald-500 text-emerald-500": todayTotalFocus >= Number(dailyTarget),
                 })}
               >
-                {todayTotalFocus} / {dailyTarget}
+                {Math.floor(todayTotalFocus / 60)} / {dailyTarget}
               </Badge>
             </ContextMenuTrigger>
             <ContextMenuContent>

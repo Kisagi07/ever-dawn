@@ -22,9 +22,7 @@ export default function Page() {
     // get data
     const formData = new FormData(e.currentTarget);
     const name = (formData.get("name") as string).trim();
-    let hour: string | number = (formData.get("hour") as string)
-      .replace("Hours", "")
-      .trim();
+    let hour: string | number = (formData.get("hour") as string).replace("Hours", "").trim();
     // validate data
     if (!name) {
       toast("Even star need a name to shine", "red");
@@ -55,7 +53,7 @@ export default function Page() {
     const data: Star = {
       name,
       targetHours: hour,
-      spentMinutes: 0,
+      spentSeconds: 0,
       createdAt: new Date(),
     };
     stars.push(data);
@@ -80,9 +78,7 @@ export default function Page() {
     handleAddMinute(minutes);
   };
 
-  const handleSpentMinuteCorrectionSubmit = async (
-    e: FormEvent<HTMLFormElement>
-  ) => {
+  const handleSpentMinuteCorrectionSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const minutes = Number(formData.get("minutes"));
@@ -94,7 +90,7 @@ export default function Page() {
     if (starIndex !== -1) {
       try {
         const updated = [...stars];
-        updated[starIndex].spentMinutes = minutes;
+        updated[starIndex].spentSeconds = minutes / 60;
         await redis.set("stars", updated);
         setStars(updated);
         setOpenTimeSpentCorrection(false);
@@ -125,17 +121,14 @@ export default function Page() {
     if (starIndex !== -1) {
       try {
         const updated = [...stars];
-        updated[starIndex].spentMinutes += minute;
+        updated[starIndex].spentSeconds += minute / 60;
         await redis.set("stars", updated);
         setStars(updated);
         setOpenAddTimeModal(false);
         toast(`${activeActionStar} star seems to shine even brighter`);
       } catch (error) {
         console.error(error);
-        toast(
-          `The shine of ${activeActionStar} star does not seems to change`,
-          "red"
-        );
+        toast(`The shine of ${activeActionStar} star does not seems to change`, "red");
       }
     } else {
       toast("You can't seems to find the star");
@@ -162,10 +155,7 @@ export default function Page() {
       redis
         .set("stars", updated)
         .then(() => {
-          toast(
-            `${activeActionStar} star has been removed from the sky.`,
-            "blue"
-          );
+          toast(`${activeActionStar} star has been removed from the sky.`, "blue");
           setStars(updated);
         })
         .catch((error) => {
@@ -202,29 +192,19 @@ export default function Page() {
             <BreadCrumb />
             <p>Each hour lights the path ahead.</p>
           </div>
-          <form
-            onSubmit={handleAddStarSubmit}
-            className="sm:flex gap-4 space-y-4 sm:space-y-0 items-center"
-          >
+          <form onSubmit={handleAddStarSubmit} className="sm:flex gap-4 space-y-4 sm:space-y-0 items-center">
             <Button className="mt-3 w-full sm:w-60 md:w-45" type="submit">
               <PlusCircleIcon className="size-6" />
               New Star
             </Button>
             <FloatingText name="name" label="Star Name" />
-            <FloatingText
-              name="hour"
-              defaultValue="0"
-              label="Distance"
-              endOfValue="Hours"
-            />
+            <FloatingText name="hour" defaultValue="0" label="Distance" endOfValue="Hours" />
           </form>
         </section>
         <section className="max-w-7xl bg-white shadow rounded md:p-8 p-4 mx-auto space-y-8">
           <div className="space-y-4">
             <h2 className="font-bold text-xl">Your Sky</h2>
-            <p className="text-sm text-slate-500">
-              Every star here marks a promise to yourself.
-            </p>
+            <p className="text-sm text-slate-500">Every star here marks a promise to yourself.</p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {stars.map((star) => (
@@ -243,11 +223,7 @@ export default function Page() {
                   handleDeleteClick();
                 }}
               >
-                <Star
-                  name={star.name}
-                  targetHours={star.targetHours}
-                  spentHours={Math.floor(star.spentMinutes / 60)}
-                />
+                <Star name={star.name} targetHours={star.targetHours} spentHours={Math.floor(star.spentSeconds / 60 / 60)} />
               </ActionFloatingMenu>
             ))}
           </div>
@@ -255,9 +231,7 @@ export default function Page() {
       </div>
       {openAddTimeModal && (
         <Modal onClose={closeAddTimeModal}>
-          <h3 className="font-medium text-xl border-b border-slate-200">
-            Add Time
-          </h3>
+          <h3 className="font-medium text-xl border-b border-slate-200">Add Time</h3>
           <form className="space-y-4" onSubmit={handleAddMinuteSubmit}>
             <FloatingText label="Add Minutes" name="minutes" />
             <Button className="w-full" type="submit">
@@ -268,13 +242,8 @@ export default function Page() {
       )}
       {openTimeSpentCorrection && (
         <Modal onClose={() => setOpenTimeSpentCorrection(false)}>
-          <h3 className="font-medium text-xl border-b border-slate-200">
-            Spent Minutes Correction
-          </h3>
-          <form
-            className="space-y-4"
-            onSubmit={handleSpentMinuteCorrectionSubmit}
-          >
+          <h3 className="font-medium text-xl border-b border-slate-200">Spent Minutes Correction</h3>
+          <form className="space-y-4" onSubmit={handleSpentMinuteCorrectionSubmit}>
             <FloatingText label="Minutes" name="minutes" />
             <Button className="w-full" type="submit">
               Save
@@ -284,15 +253,10 @@ export default function Page() {
       )}
       {openDeleteConfirmation && (
         <Modal onClose={closeTimeCorrection}>
-          <h3 className="font-medium text-xl ">
-            Delete Your {activeActionStar} Star ?
-          </h3>
+          <h3 className="font-medium text-xl ">Delete Your {activeActionStar} Star ?</h3>
           <div className="flex gap-2 justify-end">
             <Button onClick={handleDeleteStar}>Yes</Button>
-            <Button
-              onClick={closeDeleteConfirmation}
-              className="!bg-slate-300 !text-slate-600 after:!bg-slate-950"
-            >
+            <Button onClick={closeDeleteConfirmation} className="!bg-slate-300 !text-slate-600 after:!bg-slate-950">
               Cancel
             </Button>
           </div>

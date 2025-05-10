@@ -1,7 +1,7 @@
 interface Star {
   name: string;
   targetHours: number;
-  spentMinutes: number;
+  spentSeconds: number;
   createdAt?: Date;
 }
 
