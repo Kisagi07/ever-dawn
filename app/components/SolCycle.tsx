@@ -20,6 +20,7 @@ import Time from "../classes/Time";
 import calculateRythmScheme from "@/utils/calculateRythmScheme";
 import getTodayRemainingTodayGoal from "@/lib/getTodayRemainingTodayGoal";
 import PauseStart from "@/components/pages/sol-cycle/PauseStart";
+import StarSelection from "@/components/pages/sol-cycle/StarSelection";
 
 const SolCycle = () => {
   const searchParams = useSearchParams();
@@ -232,27 +233,11 @@ const SolCycle = () => {
     }
     const customScheme = searchParams.get("scheme");
     if (customScheme) {
-      // const parsedScheme = JSON.parse(customScheme) as {
-      //   focus: number;
-      //   break: number;
-      // }[];
-      // const generatedScheme: IteratingScheme[] = [];
-      // parsedScheme.forEach((scheme) => {
-      //   generatedScheme.push({
-      //     type: "focus",
-      //     time: scheme.focus,
-      //   });
-      //   generatedScheme.push({
-      //     type: "break",
-      //     time: scheme.break,
-      //   });
-      // });
       const generatedScheme = transformScheme(customScheme);
       setScheme(generatedScheme);
       setTimeLeft(generatedScheme[0].time);
       setActiveType(generatedScheme[0].type);
       newEndTime(generatedScheme[0].time);
-      console.log(generatedScheme);
     }
   }, [searchParams]);
 
@@ -316,6 +301,7 @@ const SolCycle = () => {
             <BreadCrumb />
             <Settings dailyTarget={dailyTarget} setDailyTarget={setDailyTarget} />
           </div>
+          <StarSelection starSelected={starSelected} setStarSelected={setStarSelected} />
           <BadgeAndManualAddMinute
             dailyTarget={Number(dailyTarget)}
             callUpdateTotalFocus={callUpdateTotalFocus}
