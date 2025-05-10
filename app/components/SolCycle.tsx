@@ -9,18 +9,17 @@ import { useSearchParams } from "next/navigation";
 import playSound from "@/utils/playSound";
 import formatTime from "@/utils/formatTime";
 import SkipSession from "@/components/pages/sol-cycle/SkipSession";
-import { Button } from "@/components/ui/button";
 import getDailyTarget from "@/lib/getDailyTarget";
 import updateTodayTotalFocus from "@/lib/updateTodayTotalFocus";
 import getTodayTotalFocus from "@/lib/getTodayTotalFocus";
 import Settings from "@/components/pages/sol-cycle/Settings";
-
 import BadgeAndManualAddMinute from "@/components/pages/sol-cycle/BadgeAndManualAddMinute";
 import Time from "../classes/Time";
 import calculateRythmScheme from "@/utils/calculateRythmScheme";
 import getTodayRemainingTodayGoal from "@/lib/getTodayRemainingTodayGoal";
 import PauseStart from "@/components/pages/sol-cycle/PauseStart";
 import StarSelection from "@/components/pages/sol-cycle/StarSelection";
+import ResetButton from "@/components/pages/sol-cycle/ResetButton";
 
 const SolCycle = () => {
   const searchParams = useSearchParams();
@@ -122,7 +121,7 @@ const SolCycle = () => {
     const nextSession = newScheme[0];
     setScheme(newScheme);
     return { completedSession, nextSession };
-  }, [scheme]);
+  }, [scheme, searchParams]);
 
   const switchDefaultScheme = useCallback(
     (type: "break" | "focus") => {
@@ -181,28 +180,6 @@ const SolCycle = () => {
     },
     [activeType, addMinuteToStar, getTheNextIterateScheme, scheme, sendNotification, stopPomodoro, switchDefaultScheme, addTodayTotalFocus]
   );
-
-  const handleReset = () => {
-    setIsRunning(false);
-    if (!Array.isArray(scheme)) {
-      switch (activeType) {
-        case "focus":
-          setTimeLeft(scheme.focus * 60);
-          break;
-        case "break":
-          setTimeLeft(scheme.break * 60);
-          break;
-      }
-    } else {
-      if (scheme.length > 0) {
-        setTimeLeft(scheme[0].time);
-        setActiveType(scheme[0].type);
-      } else {
-        setTimeLeft(0);
-      }
-    }
-    setEndTime(null);
-  };
 
   const transformScheme = (schemeToBeParsed: { focus?: number; break: number; id: string }[] | string) => {
     let parsedScheme;
@@ -325,17 +302,14 @@ const SolCycle = () => {
             setTimeLeft={setTimeLeft}
             timeLeft={timeLeft}
           />
-          <Button
-            onClick={handleReset}
-            className={clsx("w-full", {
-              "border-blue-500 text-blue-500 hover:text-blue-600 hover:bg-blue-50": activeType === "break",
-              "border-red-500 text-red-500 hover:text-red-600 hover:bg-red-50": activeType === "focus",
-            })}
-            size="lg"
-            variant="outline"
-          >
-            Reset
-          </Button>
+          <ResetButton
+            activeType={activeType}
+            scheme={scheme}
+            setActiveType={setActiveType}
+            setEndTime={setEndTime}
+            setIsRunning={setIsRunning}
+            setTimeLeft={setTimeLeft}
+          />
           <SkipSession activeType={activeType} handleSchemeCompletion={handleSchemeCompletion} isRunning={isRunning} />
         </div>
       </div>
