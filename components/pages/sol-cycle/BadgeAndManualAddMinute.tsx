@@ -21,7 +21,7 @@ const BadgeAndManualAddMinute = ({ dailyTarget, todayTotalFocus, callUpdateTotal
   const [openManuallyAddMinuteDialog, setOpenManuallyAddMinuteDialog] = useState(false);
 
   const handleAddManualMinute = async () => {
-    const newTotal = todayTotalFocus + +manualAddMinute;
+    const newTotal = todayTotalFocus + +manualAddMinute * 60;
     setManuallyAddingMinute(true);
     await callUpdateTotalFocus(newTotal);
     setTodayTotalFocus(newTotal);
@@ -38,7 +38,7 @@ const BadgeAndManualAddMinute = ({ dailyTarget, todayTotalFocus, callUpdateTotal
               <Badge
                 variant="outline"
                 className={clsx({
-                  "border-emerald-500 text-emerald-500": todayTotalFocus >= Number(dailyTarget),
+                  "border-emerald-500 text-emerald-500": todayTotalFocus / 60 >= Number(dailyTarget),
                 })}
               >
                 {Math.floor(todayTotalFocus / 60)} / {dailyTarget}
