@@ -1,6 +1,5 @@
 "use client";
 import { ChangeEvent, FocusEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
-import { v4 as uuidv4 } from "uuid";
 import TimeInput from "@/app/components/TimeInput";
 import Time from "@/app/classes/Time";
 import { toast } from "../components/Toast";
@@ -13,13 +12,17 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import getTodayRemainingTodayGoal from "@/lib/getTodayRemainingTodayGoal";
 import clsx from "clsx";
+import calculateRythmScheme from "@/utils/calculateRythmScheme";
+import formatTime from "@/utils/formatTime";
 
 const Page = () => {
-  const [generatedSessions, setGeneratedSessions] = useState<{ focus: number; break: number; id: string }[]>([]);
+  const [generatedSessions, setGeneratedSessions] = useState<{ focus?: number; break: number; id: string }[]>([]);
   const [focusTarget, setFocusTarget] = useState<"percentage" | "today goal">("percentage");
   const [focusPercentage, setFocusPercentage] = useState("");
   const [todayGoal, setTodayGoal] = useState("");
   const [failedTodayGoalFetch, setFailedTodayGoalFetch] = useState(false);
+  const [endTime, setEndTime] = useState("");
+  const [maxFocus, setMaxFocus] = useState(0);
 
   const perncetageOldValue = useRef<number | null>(null);
 
@@ -28,9 +31,9 @@ const Page = () => {
     // Handle form submission logic here
     // #region value getter
     const formData = new FormData(e.currentTarget);
-    let focusTotal = 0;
 
     const maxFocus = +(formData.get("max-focus") as string).replace(" Max Minutes", "").trim();
+    setMaxFocus(maxFocus);
     let hourStart: Time;
     let hourEnd: Time;
     // #endregion
@@ -45,7 +48,9 @@ const Page = () => {
     }
 
     try {
-      hourEnd = new Time(formData.get("hourEnd") as string);
+      const hourEndValue = formData.get("hourEnd") as string;
+      setEndTime(hourEndValue);
+      hourEnd = new Time(hourEndValue);
     } catch (error) {
       console.error(error);
       toast("Invalid hour end values", "red");
@@ -59,48 +64,12 @@ const Page = () => {
     // #endregion
 
     // #region calculate pomodoro scheme
-    const difference = hourStart.getDifference(hourEnd);
 
-    const totalFreeTime = difference.hours * 60 + difference.minutes;
-
-    if (focusTarget === "percentage") {
-      const focusPercentage = (focusTotal = +(formData.get("focus-percentage") as string).replace(" %", "").trim());
-      focusTotal = (totalFreeTime * focusPercentage) / 100;
-    } else {
-      focusTotal = +todayGoal.replace(" Minutes", "");
-    }
-
-    if (!focusTotal) {
-      toast("Focus Target are required", "red");
-    }
-
-    // const totalLearnTime = (totalFreeTime * learnPercentage) / 100;
-    const totalSessions = Math.floor(focusTotal / maxFocus);
-    const remainingTime = focusTotal % maxFocus;
-    const sessionChunks = Array.from({ length: totalSessions }, () => {
-      return maxFocus;
+    const sessionWithBreaks = calculateRythmScheme(hourStart, hourEnd, focusTarget, maxFocus, {
+      percentage: +focusPercentage.replace(" %", "").trim(),
+      todayGoal: +todayGoal.replace(" Minutes", ""),
     });
-    if (remainingTime > 0) {
-      sessionChunks.push(remainingTime);
-    }
-    const remainingFreeTime = totalFreeTime - focusTotal;
-    const breakTime = remainingFreeTime / sessionChunks.length;
-    let breakCarry = 0;
-    const sessionWithBreaks = sessionChunks
-      .map((chunk) => {
-        const decimal = breakTime - Math.floor(breakTime);
-        breakCarry += decimal;
-        const bonus = Math.floor(breakCarry / 1);
-        if (bonus > 0) {
-          breakCarry = breakCarry % 1;
-        }
-        return {
-          focus: chunk,
-          break: Math.floor(breakTime) + bonus,
-          id: uuidv4(),
-        };
-      })
-      .flat();
+
     setGeneratedSessions(sessionWithBreaks);
     // #endregion
   };
@@ -251,7 +220,11 @@ const Page = () => {
               </ul>
             </div>
             <Button asChild>
-              <Link href={`/sol-cycle?scheme=${JSON.stringify(generatedSessions)}`}>
+              <Link
+                href={`/sol-cycle?scheme=${JSON.stringify(generatedSessions)}&type=${focusTarget}&end-time=${endTime}&max-focus=${maxFocus}${
+                  focusTarget === "percentage" ? `&percentage-value=${focusPercentage}` : ""
+                }`}
+              >
                 Open Scheme in Sol Cycle
                 <ArrowRightCircleIcon className="size-6 group-hover:translate-x-4 transition-transform" />
               </Link>
@@ -264,11 +237,11 @@ const Page = () => {
 };
 export default Page;
 
-function Session({ focus, break: breakTime }: { focus: number; break: number }) {
+function Session({ focus, break: breakTime }: { focus?: number; break: number }) {
   return (
     <>
-      <li className=" font-medium bg-blue-100 text-blue-600 p-2 rounded-md">{focus}</li>
-      <li className=" font-medium bg-emerald-100 text-emerald-600 p-2 rounded-md">{breakTime}</li>
+      {focus && <li className=" font-medium bg-blue-100 text-blue-600 p-2 rounded-md">{formatTime(focus)}</li>}
+      <li className=" font-medium bg-emerald-100 text-emerald-600 p-2 rounded-md">{formatTime(breakTime)}</li>
     </>
   );
 }
