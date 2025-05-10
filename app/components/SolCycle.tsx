@@ -27,18 +27,18 @@ const SolCycle = () => {
   const [scheme, setScheme] = useState<{ type: "default" | "generated"; scheme: IteratingScheme[] }>({
     type: "default",
     scheme: [
-      { type: "focus", time: 15 },
-      { type: "break", time: 5 },
-      { type: "focus", time: 15 },
-      { type: "break", time: 5 },
-      { type: "focus", time: 15 },
-      { type: "break", time: 5 },
-      { type: "focus", time: 15 },
-      { type: "long_break", time: 10 },
+      { type: "focus", time: 25 * 60 },
+      { type: "break", time: 5 * 60 },
+      { type: "focus", time: 25 * 60 },
+      { type: "break", time: 5 * 60 },
+      { type: "focus", time: 25 * 60 },
+      { type: "break", time: 5 * 60 },
+      { type: "focus", time: 25 * 60 },
+      { type: "long_break", time: 15 * 60 },
     ],
   });
   const [activeType, setActiveType] = useState("focus");
-  const [timeLeft, setTimeLeft] = useState(15);
+  const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [isRunning, setIsRunning] = useState(false);
   const [endTime, setEndTime] = useState<number | null>(null);
   const [starSelected, setStarSelected] = useState<Star | null>(null);
