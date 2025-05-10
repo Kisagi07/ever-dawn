@@ -11,7 +11,7 @@ interface SetScheme {
 }
 
 interface IteratingScheme {
-  type: "focus" | "break";
+  type: "focus" | "break" | "long_break";
   time: number;
 }
 

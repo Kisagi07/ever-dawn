@@ -24,9 +24,17 @@ import ResetButton from "@/components/pages/sol-cycle/ResetButton";
 const SolCycle = () => {
   const searchParams = useSearchParams();
 
-  const [scheme, setScheme] = useState<SetScheme | IteratingScheme[]>({
-    break: 5,
-    focus: 25,
+  const [scheme, setScheme] = useState<{ type: "default" | "generated"; scheme: IteratingScheme[] }>({
+    type: "default",
+    scheme: [
+      { type: "focus", time: 25 },
+      { type: "break", time: 5 },
+      { type: "focus", time: 5 },
+      { type: "break", time: 5 },
+      { type: "focus", time: 5 },
+      { type: "break", time: 5 },
+      { type: "long_break", time: 15 },
+    ],
   });
   const [activeType, setActiveType] = useState("focus");
   const [timeLeft, setTimeLeft] = useState(25 * 60);
@@ -37,6 +45,7 @@ const SolCycle = () => {
   const [todayTotalFocus, setTodayTotalFocus] = useState(0);
 
   const recalculateOnNextSwitch = useRef(false);
+  const activeSchemeIndex = useRef(0);
 
   const starSelectedPrevious = useRef<Star | null>(null);
 
@@ -91,46 +100,47 @@ const SolCycle = () => {
   };
 
   const getTheNextIterateScheme = useCallback(async () => {
-    let newScheme = [...(scheme as IteratingScheme[])];
-    const completedSession = newScheme.shift();
+    if (scheme.type === "generated") {
+      let newScheme = [...scheme.scheme];
+      const completedSession = newScheme.shift();
 
-    if (recalculateOnNextSwitch.current) {
-      const type = searchParams.get("type") as "percentage" | "today goal";
-      let endTime: string | Time = searchParams.get("end-time") as string;
-      endTime = new Time(endTime);
-      const now = new Date();
-      const currentTime = new Time(`${padTime(now.getHours())}:${padTime(now.getMinutes())}:${padTime(now.getSeconds())}`);
-      const maxFocus = searchParams.get("max-focus") as string;
+      if (recalculateOnNextSwitch.current) {
+        const type = searchParams.get("type") as "percentage" | "today goal";
+        let endTime: string | Time = searchParams.get("end-time") as string;
+        endTime = new Time(endTime);
+        const now = new Date();
+        const currentTime = new Time(`${padTime(now.getHours())}:${padTime(now.getMinutes())}:${padTime(now.getSeconds())}`);
+        const maxFocus = searchParams.get("max-focus") as string;
 
-      const options: { percentage?: number; todayGoal?: number } = {};
-      if (type === "percentage") {
-        const percentage = searchParams.get("percentage-value") as string;
-        options.percentage = +percentage;
-      } else {
-        const leftOverGoal = await getTodayRemainingTodayGoal();
-        if (typeof leftOverGoal === "number") {
-          options.todayGoal = leftOverGoal;
+        const options: { percentage?: number; todayGoal?: number } = {};
+        if (type === "percentage") {
+          const percentage = searchParams.get("percentage-value") as string;
+          options.percentage = +percentage;
+        } else {
+          const leftOverGoal = await getTodayRemainingTodayGoal();
+          if (typeof leftOverGoal === "number") {
+            options.todayGoal = leftOverGoal;
+          }
         }
+
+        const recalculatedScheme = calculateRythmScheme(currentTime, endTime, type, +maxFocus, options);
+        const parsedScheme = transformScheme(recalculatedScheme);
+        newScheme = parsedScheme;
+        recalculateOnNextSwitch.current = false;
       }
+      const nextSession = newScheme[0];
+      setScheme({ type: "generated", scheme: newScheme });
+      return { completedSession, nextSession };
+    } else {
+      const nextIndex = activeSchemeIndex.current + 1;
+      const nextSession = scheme.scheme[nextIndex];
+      const completedSession = scheme.scheme[activeSchemeIndex.current];
 
-      const recalculatedScheme = calculateRythmScheme(currentTime, endTime, type, +maxFocus, options);
-      const parsedScheme = transformScheme(recalculatedScheme);
-      newScheme = parsedScheme;
-      recalculateOnNextSwitch.current = false;
+      activeSchemeIndex.current = nextIndex;
+
+      return { nextSession, completedSession };
     }
-    const nextSession = newScheme[0];
-    setScheme(newScheme);
-    return { completedSession, nextSession };
   }, [scheme, searchParams]);
-
-  const switchDefaultScheme = useCallback(
-    (type: "break" | "focus") => {
-      setActiveType(type);
-      setTimeLeft((scheme as SetScheme)[type] * 60);
-      newEndTime((scheme as SetScheme)[type]);
-    },
-    [scheme]
-  );
 
   const callUpdateTotalFocus = async (newTotal: number) => {
     const response = await updateTodayTotalFocus(newTotal);
@@ -152,33 +162,22 @@ const SolCycle = () => {
     async (skipStarAdd: boolean = false) => {
       sendNotification();
       playSound();
-      if (!Array.isArray(scheme)) {
-        if (activeType === "focus") {
-          switchDefaultScheme("break");
-          if (skipStarAdd) {
-            addMinuteToStar(scheme.focus);
-          }
-          addTodayTotalFocus(scheme.focus);
-        } else {
-          switchDefaultScheme("focus");
-        }
+      const { completedSession, nextSession } = await getTheNextIterateScheme();
+
+      if (completedSession && completedSession.type === "focus" && !skipStarAdd) {
+        addMinuteToStar(completedSession.time);
+        addTodayTotalFocus(completedSession.time);
+      }
+
+      if (nextSession) {
+        setActiveType(nextSession.type);
+        setTimeLeft(nextSession.time);
+        newEndTime(nextSession.time);
       } else {
-        const { completedSession, nextSession } = await getTheNextIterateScheme();
-        // remove the first element from the array
-        if (completedSession && completedSession.type === "focus" && !skipStarAdd) {
-          addMinuteToStar(completedSession.time);
-          addTodayTotalFocus(completedSession.time);
-        }
-        if (nextSession) {
-          setActiveType(nextSession.type);
-          setTimeLeft(nextSession.time);
-          newEndTime(nextSession.time);
-        } else {
-          stopPomodoro();
-        }
+        stopPomodoro();
       }
     },
-    [activeType, addMinuteToStar, getTheNextIterateScheme, scheme, sendNotification, stopPomodoro, switchDefaultScheme, addTodayTotalFocus]
+    [activeType, addMinuteToStar, getTheNextIterateScheme, scheme, sendNotification, stopPomodoro, addTodayTotalFocus]
   );
 
   const transformScheme = (schemeToBeParsed: { focus?: number; break: number; id: string }[] | string) => {
@@ -211,7 +210,7 @@ const SolCycle = () => {
     const customScheme = searchParams.get("scheme");
     if (customScheme) {
       const generatedScheme = transformScheme(customScheme);
-      setScheme(generatedScheme);
+      setScheme({ type: "generated", scheme: generatedScheme });
       setTimeLeft(generatedScheme[0].time);
       setActiveType(generatedScheme[0].type);
       newEndTime(generatedScheme[0].time);
@@ -287,7 +286,7 @@ const SolCycle = () => {
           />
           <h2
             className={clsx("text-7xl transition-colors font-bold font-jetbrains-mono", {
-              "text-blue-500": activeType === "break",
+              "text-blue-500": activeType === "break" || activeType === "long_break",
               "text-red-500": activeType === "focus",
             })}
           >
@@ -309,6 +308,7 @@ const SolCycle = () => {
             setEndTime={setEndTime}
             setIsRunning={setIsRunning}
             setTimeLeft={setTimeLeft}
+            activeSchemeIndex={activeSchemeIndex.current}
           />
           <SkipSession activeType={activeType} handleSchemeCompletion={handleSchemeCompletion} isRunning={isRunning} />
         </div>

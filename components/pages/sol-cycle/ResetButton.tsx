@@ -6,27 +6,24 @@ interface ResetButtonProps {
   setIsRunning: Dispatch<SetStateAction<boolean>>;
   setTimeLeft: Dispatch<SetStateAction<number>>;
   activeType: string;
-  scheme: SetScheme | IteratingScheme[];
+  scheme: { type: "default" | "generated"; scheme: IteratingScheme[] };
   setActiveType: Dispatch<SetStateAction<string>>;
   setEndTime: Dispatch<SetStateAction<number | null>>;
+  activeSchemeIndex: number;
 }
 
-const ResetButton = ({ setIsRunning, setTimeLeft, activeType, scheme, setActiveType, setEndTime }: ResetButtonProps) => {
+const ResetButton = ({ setIsRunning, setTimeLeft, activeType, scheme, setActiveType, setEndTime, activeSchemeIndex }: ResetButtonProps) => {
   const handleReset = () => {
     setIsRunning(false);
-    if (!Array.isArray(scheme)) {
-      switch (activeType) {
-        case "focus":
-          setTimeLeft(scheme.focus * 60);
-          break;
-        case "break":
-          setTimeLeft(scheme.break * 60);
-          break;
-      }
+
+    if (scheme.type === "default") {
+      const resetTo = scheme.scheme[activeSchemeIndex];
+      setTimeLeft(resetTo.time);
+      setActiveType(resetTo.type);
     } else {
-      if (scheme.length > 0) {
-        setTimeLeft(scheme[0].time);
-        setActiveType(scheme[0].type);
+      if (scheme.scheme.length > 0) {
+        setTimeLeft(scheme.scheme[0].time);
+        setActiveType(scheme.scheme[0].type);
       } else {
         setTimeLeft(0);
       }
