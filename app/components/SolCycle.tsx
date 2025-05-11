@@ -118,8 +118,11 @@ const SolCycle = () => {
           const percentage = searchParams.get("percentage-value") as string;
           options.percentage = +percentage;
         } else {
-          const leftOverGoal = await getTodayRemainingTodayGoal();
+          let leftOverGoal = (await getTodayRemainingTodayGoal()) as number;
           if (typeof leftOverGoal === "number") {
+            if (completedSession!.type === "focus") {
+              leftOverGoal -= completedSession!.time / 60;
+            }
             options.todayGoal = leftOverGoal;
           }
         }
