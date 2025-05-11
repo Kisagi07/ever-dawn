@@ -1,0 +1,4 @@
+{
+  "ignoreDependencies": ["eslint", "eslint-config-next", "tailwindcss", "tw-animate-css", "postcss"],
+  "ignore": "components/ui/*"
+}
