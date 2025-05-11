@@ -1,7 +1,7 @@
 "use server";
 
-import getDailyTarget from "./getDailyTarget";
-import getTodayTotalFocus from "./getTodayTotalFocus";
+import getDailyTarget from "@/lib/getDailyTarget";
+import getTodayTotalFocus from "@/lib/getTodayTotalFocus";
 
 const getTodayRemainingTodayGoal = async () => {
   try {
@@ -19,7 +19,7 @@ const getTodayRemainingTodayGoal = async () => {
     if (todayTotalFocus == null) todayTotalFocus = 0;
 
     if (typeof target === "number" && typeof todayTotalFocus === "number") {
-      const remaining = target - todayTotalFocus;
+      const remaining = target - Math.floor(todayTotalFocus / 60);
       return remaining;
     } else {
       return "Failed to get today total focus";

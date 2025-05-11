@@ -1,7 +1,8 @@
 import Time from "@/app/classes/Time";
+import getTodayRemainingTodayGoal from "@/lib/getTodayRemainingTodayGoal";
 import calculateRythmScheme from "@/utils/calculateRythmScheme";
 import formatTime from "@/utils/formatTime";
-import { expect, test, describe, it } from "vitest";
+import { expect, test, describe, it, vi } from "vitest";
 
 describe("Utilities", () => {
   describe("calculateRythmScheme", () => {
@@ -44,6 +45,19 @@ describe("Utilities", () => {
       const seconds = 320;
       const result = formatTime(seconds);
       expect(result).toEqual("05:20");
+    });
+  });
+  describe("getTodayRemainingTodayGoal", () => {
+    it("Return propery remaining minute", async () => {
+      vi.mock("@/lib/getDailyTarget", () => ({
+        default: vi.fn(() => 360),
+      }));
+      vi.mock("@/lib/getTodayTotalFocus", () => ({
+        default: vi.fn(() => 4200),
+      }));
+
+      const response = await getTodayRemainingTodayGoal();
+      expect(response).toEqual(290);
     });
   });
 });
