@@ -3,8 +3,6 @@ import { Button } from "@/components/ui/button";
 import { DialogContent, Dialog, DialogTrigger, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { handleBlurIndicator, handleFocusIndicator } from "@/lib/handleInputFocusBlur";
 import handleKeydownOnlyNumber from "@/lib/handleKeydownOnlyNumber";

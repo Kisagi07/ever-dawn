@@ -20,7 +20,8 @@ import getTodayRemainingTodayGoal from "@/lib/getTodayRemainingTodayGoal";
 import PauseStart from "@/components/pages/sol-cycle/PauseStart";
 import StarSelection from "@/components/pages/sol-cycle/StarSelection";
 import ResetButton from "@/components/pages/sol-cycle/ResetButton";
-import { Button } from "@/components/ui/button";
+import newEndTime from "@/utils/newEndTime";
+import addSecondsToStar from "@/utils/addSecondsToStar";
 
 const SolCycle = () => {
   const searchParams = useSearchParams();
@@ -51,23 +52,6 @@ const SolCycle = () => {
   const activeSchemeIndex = useRef(0);
 
   const starSelectedPrevious = useRef<Star | null>(null);
-
-  const newEndTime = (seconds: number) => {
-    const newEndTime = Date.now() + seconds * 1000;
-    setEndTime(newEndTime);
-  };
-
-  const addSecondsToStar = useCallback(
-    (seconds: number) => {
-      if (starSelected) {
-        const newStar = { ...starSelected };
-        newStar.spentSeconds += seconds;
-        setStarSelected(newStar);
-        updateStar(newStar);
-      }
-    },
-    [starSelected]
-  );
 
   const sendNotification = useCallback(
     (text?: string) => {
@@ -171,19 +155,19 @@ const SolCycle = () => {
       const { completedSession, nextSession } = await getTheNextIterateScheme();
 
       if (completedSession && completedSession.type === "focus" && !skipStarAdd) {
-        addSecondsToStar(completedSession.time);
+        addSecondsToStar(completedSession.time, starSelected, setStarSelected);
         addTodayTotalFocus(completedSession.time);
       }
 
       if (nextSession) {
         setActiveType(nextSession.type);
         setTimeLeft(nextSession.time);
-        newEndTime(nextSession.time);
+        newEndTime(nextSession.time, setEndTime);
       } else {
         stopPomodoro();
       }
     },
-    [addSecondsToStar, getTheNextIterateScheme, sendNotification, stopPomodoro, addTodayTotalFocus]
+    [getTheNextIterateScheme, sendNotification, stopPomodoro, addTodayTotalFocus, playSoundVolume, starSelected]
   );
 
   const transformScheme = (schemeToBeParsed: { focus?: number; break: number; id: string }[] | string) => {
@@ -219,7 +203,7 @@ const SolCycle = () => {
       setScheme({ type: "generated", scheme: generatedScheme });
       setTimeLeft(generatedScheme[0].time);
       setActiveType(generatedScheme[0].type);
-      newEndTime(generatedScheme[0].time);
+      newEndTime(generatedScheme[0].time, setEndTime);
     }
   }, [searchParams]);
 
@@ -254,7 +238,7 @@ const SolCycle = () => {
     }
 
     return () => clearInterval(timer);
-  }, [isRunning, endTime, activeType, addSecondsToStar, noSchemeRemaining, scheme, sendNotification, handleSchemeCompletion]);
+  }, [isRunning, endTime, activeType, noSchemeRemaining, scheme, sendNotification, handleSchemeCompletion]);
 
   useEffect(() => {
     getDailyTarget().then((response) => {
