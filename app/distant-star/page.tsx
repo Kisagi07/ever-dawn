@@ -121,7 +121,7 @@ export default function Page() {
     if (starIndex !== -1) {
       try {
         const updated = [...stars];
-        updated[starIndex].spentSeconds += minute / 60;
+        updated[starIndex].spentSeconds += minute * 60;
         await redis.set("stars", updated);
         setStars(updated);
         setOpenAddTimeModal(false);
