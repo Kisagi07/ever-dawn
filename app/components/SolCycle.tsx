@@ -20,6 +20,7 @@ import getTodayRemainingTodayGoal from "@/lib/getTodayRemainingTodayGoal";
 import PauseStart from "@/components/pages/sol-cycle/PauseStart";
 import StarSelection from "@/components/pages/sol-cycle/StarSelection";
 import ResetButton from "@/components/pages/sol-cycle/ResetButton";
+import { Button } from "@/components/ui/button";
 
 const SolCycle = () => {
   const searchParams = useSearchParams();
@@ -44,6 +45,7 @@ const SolCycle = () => {
   const [starSelected, setStarSelected] = useState<Star | null>(null);
   const [dailyTarget, setDailyTarget] = useState("0");
   const [todayTotalFocus, setTodayTotalFocus] = useState(0);
+  const [playSoundVolume, setPlaySoundVolume] = useState([0.2]);
 
   const recalculateOnNextSwitch = useRef(false);
   const activeSchemeIndex = useRef(0);
@@ -165,7 +167,7 @@ const SolCycle = () => {
   const handleSchemeCompletion = useCallback(
     async (skipStarAdd: boolean = false) => {
       sendNotification();
-      playSound();
+      playSound({ volume: playSoundVolume[0] });
       const { completedSession, nextSession } = await getTheNextIterateScheme();
 
       if (completedSession && completedSession.type === "focus" && !skipStarAdd) {
@@ -271,15 +273,30 @@ const SolCycle = () => {
         setTodayTotalFocus(response);
       }
     });
+    const savedVolume = localStorage.getItem("audio-volume");
+    if (savedVolume) {
+      setPlaySoundVolume([+savedVolume]);
+    } else {
+      setPlaySoundVolume([0.2]);
+    }
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem("audio-volume", playSoundVolume[0].toString());
+  }, [playSoundVolume]);
 
   return (
     <>
       <div className="w-full h-screen flex items-center justify-center">
-        <div className="bg-white p-6 rounded-lg shadow-lg flex items-center justify-center flex-col gap-4">
+        <div className="bg-white p-6 rounded-lg shadow-lg flex w-full max-w-sm items-center justify-center flex-col gap-4">
           <div className="w-full flex items-center justify-between">
             <BreadCrumb />
-            <Settings dailyTarget={dailyTarget} setDailyTarget={setDailyTarget} />
+            <Settings
+              dailyTarget={dailyTarget}
+              setDailyTarget={setDailyTarget}
+              playSoundVolume={playSoundVolume}
+              setPlaySoundVolume={setPlaySoundVolume}
+            />
           </div>
           <StarSelection starSelected={starSelected} setStarSelected={setStarSelected} />
           <BadgeAndManualAddMinute

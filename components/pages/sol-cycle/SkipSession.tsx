@@ -1,5 +1,6 @@
 import Tooltip from "@/app/components/Tooltip";
 import capitalizeWords from "@/app/utilities/capitalizeWords";
+import { Button } from "@/components/ui/button";
 
 interface SkipSessionProps {
   activeType: string;
@@ -10,13 +11,9 @@ interface SkipSessionProps {
 const SkipSession = ({ activeType, isRunning, handleSchemeCompletion }: SkipSessionProps) => {
   return (
     <Tooltip text={`Switch to ${activeType === "focus" ? "break" : "focus"}`}>
-      <button
-        disabled={isRunning}
-        onClick={() => handleSchemeCompletion(true)}
-        className="text-xl cursor-pointer hover:text-black transition-colors font-medium text-neutral-400"
-      >
+      <Button disabled={isRunning} onClick={() => handleSchemeCompletion(true)} variant="outline">
         {capitalizeWords(activeType.replace("_", " "))}
-      </button>
+      </Button>
     </Tooltip>
   );
 };
