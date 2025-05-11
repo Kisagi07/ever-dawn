@@ -20,6 +20,8 @@ import getTodayRemainingTodayGoal from "@/lib/getTodayRemainingTodayGoal";
 import PauseStart from "@/components/pages/sol-cycle/PauseStart";
 import StarSelection from "@/components/pages/sol-cycle/StarSelection";
 import ResetButton from "@/components/pages/sol-cycle/ResetButton";
+import newEndTime from "@/utils/newEndTime";
+import addSecondsToStar from "@/utils/addSecondsToStar";
 
 const SolCycle = () => {
   const searchParams = useSearchParams();
@@ -44,28 +46,12 @@ const SolCycle = () => {
   const [starSelected, setStarSelected] = useState<Star | null>(null);
   const [dailyTarget, setDailyTarget] = useState("0");
   const [todayTotalFocus, setTodayTotalFocus] = useState(0);
+  const [playSoundVolume, setPlaySoundVolume] = useState([0.2]);
 
   const recalculateOnNextSwitch = useRef(false);
   const activeSchemeIndex = useRef(0);
 
   const starSelectedPrevious = useRef<Star | null>(null);
-
-  const newEndTime = (seconds: number) => {
-    const newEndTime = Date.now() + seconds * 1000;
-    setEndTime(newEndTime);
-  };
-
-  const addSecondsToStar = useCallback(
-    (seconds: number) => {
-      if (starSelected) {
-        const newStar = { ...starSelected };
-        newStar.spentSeconds += seconds;
-        setStarSelected(newStar);
-        updateStar(newStar);
-      }
-    },
-    [starSelected]
-  );
 
   const sendNotification = useCallback(
     (text?: string) => {
@@ -165,23 +151,23 @@ const SolCycle = () => {
   const handleSchemeCompletion = useCallback(
     async (skipStarAdd: boolean = false) => {
       sendNotification();
-      playSound();
+      playSound({ volume: playSoundVolume[0] });
       const { completedSession, nextSession } = await getTheNextIterateScheme();
 
       if (completedSession && completedSession.type === "focus" && !skipStarAdd) {
-        addSecondsToStar(completedSession.time);
+        addSecondsToStar(completedSession.time, starSelected, setStarSelected);
         addTodayTotalFocus(completedSession.time);
       }
 
       if (nextSession) {
         setActiveType(nextSession.type);
         setTimeLeft(nextSession.time);
-        newEndTime(nextSession.time);
+        newEndTime(nextSession.time, setEndTime);
       } else {
         stopPomodoro();
       }
     },
-    [addSecondsToStar, getTheNextIterateScheme, sendNotification, stopPomodoro, addTodayTotalFocus]
+    [getTheNextIterateScheme, sendNotification, stopPomodoro, addTodayTotalFocus, playSoundVolume, starSelected]
   );
 
   const transformScheme = (schemeToBeParsed: { focus?: number; break: number; id: string }[] | string) => {
@@ -217,7 +203,7 @@ const SolCycle = () => {
       setScheme({ type: "generated", scheme: generatedScheme });
       setTimeLeft(generatedScheme[0].time);
       setActiveType(generatedScheme[0].type);
-      newEndTime(generatedScheme[0].time);
+      newEndTime(generatedScheme[0].time, setEndTime);
     }
   }, [searchParams]);
 
@@ -252,7 +238,7 @@ const SolCycle = () => {
     }
 
     return () => clearInterval(timer);
-  }, [isRunning, endTime, activeType, addSecondsToStar, noSchemeRemaining, scheme, sendNotification, handleSchemeCompletion]);
+  }, [isRunning, endTime, activeType, noSchemeRemaining, scheme, sendNotification, handleSchemeCompletion]);
 
   useEffect(() => {
     getDailyTarget().then((response) => {
@@ -271,15 +257,30 @@ const SolCycle = () => {
         setTodayTotalFocus(response);
       }
     });
+    const savedVolume = localStorage.getItem("audio-volume");
+    if (savedVolume) {
+      setPlaySoundVolume([+savedVolume]);
+    } else {
+      setPlaySoundVolume([0.2]);
+    }
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem("audio-volume", playSoundVolume[0].toString());
+  }, [playSoundVolume]);
 
   return (
     <>
       <div className="w-full h-screen flex items-center justify-center">
-        <div className="bg-white p-6 rounded-lg shadow-lg flex items-center justify-center flex-col gap-4">
+        <div className="bg-white p-6 rounded-lg shadow-lg flex w-full max-w-sm items-center justify-center flex-col gap-4">
           <div className="w-full flex items-center justify-between">
             <BreadCrumb />
-            <Settings dailyTarget={dailyTarget} setDailyTarget={setDailyTarget} />
+            <Settings
+              dailyTarget={dailyTarget}
+              setDailyTarget={setDailyTarget}
+              playSoundVolume={playSoundVolume}
+              setPlaySoundVolume={setPlaySoundVolume}
+            />
           </div>
           <StarSelection starSelected={starSelected} setStarSelected={setStarSelected} />
           <BadgeAndManualAddMinute
