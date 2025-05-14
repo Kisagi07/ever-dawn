@@ -25,6 +25,15 @@ describe("Utilities", () => {
       expect(result).toEqual(
         expect.arrayContaining([expect.objectContaining({ focus: 1500, break: 300 }), expect.objectContaining({ focus: 1500, break: 300 })])
       );
+
+      const newHourStart = new Time("09:10:00");
+      const nextResult = calculateRythmScheme(newHourStart, hourEnd, focusTarget, maxFocus, { todayGoal: 45 });
+      expect(nextResult).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ focus: 25 * 60, break: 2 * 60 + 30 }),
+          expect.objectContaining({ focus: 25 * 60, break: 2 * 60 + 30 }),
+        ])
+      );
     });
 
     it("Start with break", () => {

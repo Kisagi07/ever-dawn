@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import clsx from "clsx";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, RefObject, SetStateAction } from "react";
 
 interface PauseStartProps {
   isRunning: boolean;
@@ -10,9 +10,19 @@ interface PauseStartProps {
   endTime: number | null;
   setTimeLeft: Dispatch<SetStateAction<number>>;
   activeType: string;
+  recalculateOnNextSwitch: RefObject<boolean>;
 }
 
-const PauseStart = ({ isRunning, timeLeft, setEndTime, setIsRunning, endTime, setTimeLeft, activeType }: PauseStartProps) => {
+const PauseStart = ({
+  isRunning,
+  timeLeft,
+  setEndTime,
+  setIsRunning,
+  endTime,
+  setTimeLeft,
+  activeType,
+  recalculateOnNextSwitch,
+}: PauseStartProps) => {
   const handleStart = () => {
     const newEndTime = Date.now() + timeLeft * 1000;
     setEndTime(newEndTime);
@@ -21,6 +31,7 @@ const PauseStart = ({ isRunning, timeLeft, setEndTime, setIsRunning, endTime, se
 
   const handlePause = () => {
     setIsRunning(false);
+    recalculateOnNextSwitch.current = true;
     if (endTime) {
       const remaining = Math.round((endTime - Date.now()) / 1000);
       setTimeLeft(remaining > 0 ? remaining : 0);

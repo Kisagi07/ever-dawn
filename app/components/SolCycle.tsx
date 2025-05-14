@@ -90,7 +90,6 @@ const SolCycle = () => {
     if (scheme.type === "generated") {
       let newScheme = [...scheme.scheme];
       const completedSession = newScheme.shift();
-
       if (recalculateOnNextSwitch.current) {
         const type = searchParams.get("type") as "percentage" | "today goal";
         let endTime: string | Time = searchParams.get("end-time") as string;
@@ -298,6 +297,7 @@ const SolCycle = () => {
             {formatTime(timeLeft)}
           </h2>
           <PauseStart
+            recalculateOnNextSwitch={recalculateOnNextSwitch}
             activeType={activeType}
             endTime={endTime}
             isRunning={isRunning}
