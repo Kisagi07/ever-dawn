@@ -40,7 +40,7 @@ const SolCycle = () => {
     ],
   });
   const [activeType, setActiveType] = useState("focus");
-  const [timeLeft, setTimeLeft] = useState(25 * 60);
+  const [timeLeft, setTimeLeft] = useState(scheme.scheme[0].time);
   const [isRunning, setIsRunning] = useState(false);
   const [endTime, setEndTime] = useState<number | null>(null);
   const [starSelected, setStarSelected] = useState<Star | null>(null);
@@ -121,7 +121,7 @@ const SolCycle = () => {
       setScheme({ type: "generated", scheme: newScheme });
       return { completedSession, nextSession };
     } else {
-      const nextIndex = activeSchemeIndex.current === 3 ? 0 : activeSchemeIndex.current + 1;
+      const nextIndex = activeSchemeIndex.current === scheme.scheme.length - 1 ? 0 : activeSchemeIndex.current + 1;
       const nextSession = scheme.scheme[nextIndex];
       const completedSession = scheme.scheme[activeSchemeIndex.current];
 
