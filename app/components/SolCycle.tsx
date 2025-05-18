@@ -40,7 +40,7 @@ const SolCycle = () => {
     ],
   });
   const [activeType, setActiveType] = useState("focus");
-  const [timeLeft, setTimeLeft] = useState(scheme.scheme[0].time);
+  const [timeLeft, setTimeLeft] = useState(scheme.scheme[0]?.time || 0);
   const [isRunning, setIsRunning] = useState(false);
   const [endTime, setEndTime] = useState<number | null>(null);
   const [starSelected, setStarSelected] = useState<Star | null>(null);
@@ -91,6 +91,7 @@ const SolCycle = () => {
       let newScheme = [...scheme.scheme];
       const completedSession = newScheme.shift();
       if (recalculateOnNextSwitch.current) {
+        // Get passed parameter
         const type = searchParams.get("type") as "percentage" | "today goal";
         let endTime: string | Time = searchParams.get("end-time") as string;
         endTime = new Time(endTime);
@@ -98,7 +99,12 @@ const SolCycle = () => {
         const currentTime = new Time(`${padTime(now.getHours())}:${padTime(now.getMinutes())}:${padTime(now.getSeconds())}`);
         const maxFocus = searchParams.get("max-focus") as string;
 
-        const options: { percentage?: number; todayGoal?: number } = {};
+        const options: { percentage?: number; todayGoal?: number; startWithBreak?: boolean } = {};
+        // Check if recalculation start with break or not
+        if (completedSession && completedSession.type === "focus") {
+          options.startWithBreak = true;
+        }
+        // get how much percentage or today goal left for calculation
         if (type === "percentage") {
           const percentage = searchParams.get("percentage-value") as string;
           options.percentage = +percentage;
@@ -112,9 +118,11 @@ const SolCycle = () => {
           }
         }
 
+        // calculate and transform
         const recalculatedScheme = calculateRythmScheme(currentTime, endTime, type, +maxFocus, options);
         const parsedScheme = transformScheme(recalculatedScheme);
         newScheme = parsedScheme;
+        // reset
         recalculateOnNextSwitch.current = false;
       }
       const nextSession = newScheme[0];
@@ -149,9 +157,11 @@ const SolCycle = () => {
 
   const handleSchemeCompletion = useCallback(
     async (skipStarAdd: boolean = false) => {
-      sendNotification();
       playSound({ volume: playSoundVolume[0] });
       const { completedSession, nextSession } = await getTheNextIterateScheme();
+      if (completedSession) {
+        sendNotification();
+      }
 
       if (completedSession && completedSession.type === "focus" && !skipStarAdd) {
         addSecondsToStar(completedSession.time, starSelected, setStarSelected);
