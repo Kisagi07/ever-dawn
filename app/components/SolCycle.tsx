@@ -156,16 +156,20 @@ const SolCycle = () => {
   );
 
   const handleSchemeCompletion = useCallback(
-    async (skipStarAdd: boolean = false) => {
+    async (skip: boolean = false) => {
       playSound({ volume: playSoundVolume[0] });
       const { completedSession, nextSession } = await getTheNextIterateScheme();
       if (completedSession) {
         sendNotification();
       }
 
-      if (completedSession && completedSession.type === "focus" && !skipStarAdd) {
+      if (completedSession && completedSession.type === "focus" && !skip) {
         addSecondsToStar(completedSession.time, starSelected, setStarSelected);
         addTodayTotalFocus(completedSession.time);
+      } else if (completedSession && completedSession.type === "focus") {
+        const passedSeconds = Math.abs(completedSession.time - timeLeft);
+        addSecondsToStar(passedSeconds, starSelected, setStarSelected);
+        addTodayTotalFocus(passedSeconds);
       }
 
       if (nextSession) {
@@ -176,7 +180,7 @@ const SolCycle = () => {
         stopPomodoro();
       }
     },
-    [getTheNextIterateScheme, sendNotification, stopPomodoro, addTodayTotalFocus, playSoundVolume, starSelected]
+    [getTheNextIterateScheme, sendNotification, stopPomodoro, addTodayTotalFocus, playSoundVolume, starSelected, timeLeft]
   );
 
   const transformScheme = (schemeToBeParsed: { focus?: number; break: number; id: string }[] | string) => {
