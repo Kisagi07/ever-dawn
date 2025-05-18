@@ -7,7 +7,7 @@ interface ResetButtonProps {
   setTimeLeft: Dispatch<SetStateAction<number>>;
   activeType: string;
   scheme: { type: "default" | "generated"; scheme: IteratingScheme[] };
-  setActiveType: Dispatch<SetStateAction<string>>;
+  setActiveType: Dispatch<SetStateAction<"break" | "long_break" | "focus">>;
   setEndTime: Dispatch<SetStateAction<number | null>>;
   activeSchemeIndex: number;
 }

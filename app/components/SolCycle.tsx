@@ -22,6 +22,8 @@ import StarSelection from "@/components/pages/sol-cycle/StarSelection";
 import ResetButton from "@/components/pages/sol-cycle/ResetButton";
 import newEndTime from "@/utils/newEndTime";
 import addSecondsToStar from "@/utils/addSecondsToStar";
+import padTime from "@/utils/padTime";
+import sendNotification from "@/utils/sendNotification";
 
 const SolCycle = () => {
   const searchParams = useSearchParams();
@@ -39,7 +41,7 @@ const SolCycle = () => {
       { type: "long_break", time: 15 * 60 },
     ],
   });
-  const [activeType, setActiveType] = useState("focus");
+  const [activeType, setActiveType] = useState<"focus" | "break" | "long_break">("focus");
   const [timeLeft, setTimeLeft] = useState(scheme.scheme[0]?.time || 0);
   const [isRunning, setIsRunning] = useState(false);
   const [endTime, setEndTime] = useState<number | null>(null);
@@ -53,38 +55,15 @@ const SolCycle = () => {
 
   const starSelectedPrevious = useRef<Star | null>(null);
 
-  const sendNotification = useCallback(
-    (text?: string) => {
-      if (document.visibilityState === "visible") {
-        toast("Time's up!", "blue");
-        return;
-      } else {
-        if (Notification.permission === "granted") {
-          new Notification("Time's up!", {
-            body: text ? text : activeType === "focus" ? "Take a break!" : "Back to work!",
-            icon: "/notification-icon.png",
-          });
-        } else {
-          toast("Please allow notification in your browser settings.", "blue");
-        }
-      }
-    },
-    [activeType]
-  );
-
   const noSchemeRemaining = useCallback(() => {
-    sendNotification("Good Job! You have done your sol session.");
-  }, [sendNotification]);
+    sendNotification(activeType, "Good Job! You have done your sol session.");
+  }, [activeType]);
 
   const stopPomodoro = useCallback(() => {
     noSchemeRemaining();
     setIsRunning(false);
     setEndTime(null);
   }, [noSchemeRemaining]);
-
-  const padTime = (time: number) => {
-    return time.toString().padStart(2, "0");
-  };
 
   const getTheNextIterateScheme = useCallback(async () => {
     if (scheme.type === "generated") {
@@ -160,7 +139,7 @@ const SolCycle = () => {
       playSound({ volume: playSoundVolume[0] });
       const { completedSession, nextSession } = await getTheNextIterateScheme();
       if (completedSession) {
-        sendNotification();
+        sendNotification(activeType);
       }
 
       if (completedSession && completedSession.type === "focus" && !skip) {
@@ -180,7 +159,7 @@ const SolCycle = () => {
         stopPomodoro();
       }
     },
-    [getTheNextIterateScheme, sendNotification, stopPomodoro, addTodayTotalFocus, playSoundVolume, starSelected, timeLeft]
+    [getTheNextIterateScheme, activeType, stopPomodoro, addTodayTotalFocus, playSoundVolume, starSelected, timeLeft]
   );
 
   const transformScheme = (schemeToBeParsed: { focus?: number; break: number; id: string }[] | string) => {
@@ -251,7 +230,7 @@ const SolCycle = () => {
     }
 
     return () => clearInterval(timer);
-  }, [isRunning, endTime, activeType, noSchemeRemaining, scheme, sendNotification, handleSchemeCompletion]);
+  }, [isRunning, endTime, activeType, noSchemeRemaining, scheme, handleSchemeCompletion]);
 
   useEffect(() => {
     getDailyTarget().then((response) => {
