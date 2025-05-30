@@ -1,7 +1,7 @@
-const getTodayDateString = (timeZone:string) => {
+const getTodayDateString = (timeZone:string, locale:string) => {
   const now = new Date();
   
-  const formatter = new Intl.DateTimeFormat("en-CA",{timeZone, year: "numeric", month: "2-digit", "day": "2-digit"});
+  const formatter = new Intl.DateTimeFormat(locale,{timeZone, year: "numeric", month: "2-digit", "day": "2-digit"});
 
   // Format returns "YYYY-MM-DD" for "en-CA" locale
   const parts = formatter.formatToParts(now);

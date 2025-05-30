@@ -247,7 +247,7 @@ const SolCycle = () => {
     const locale = navigator.language;
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;    
 
-    getTodayTotalFocus(timeZone).then((response) => {
+    getTodayTotalFocus(timeZone, locale).then((response) => {
       if (response === "FAIL") {
         toast("Failed to get today total focus", "red");
       } else if (response) {
