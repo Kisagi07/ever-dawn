@@ -242,7 +242,12 @@ const SolCycle = () => {
         setDailyTarget(response.toString());
       }
     });
-    getTodayTotalFocus().then((response) => {
+
+    // Get locale for today total focus
+    const locale = navigator.language;
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;    
+
+    getTodayTotalFocus(timeZone).then((response) => {
       if (response === "FAIL") {
         toast("Failed to get today total focus", "red");
       } else if (response) {
