@@ -1,9 +1,14 @@
-const getTodayDateString = () => {
+const getTodayDateString = (timeZone:string) => {
   const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
-  const date = now.getDate();
-  const dateString = `${year}-${month + 1}-${date}`;
-  return dateString;
+  
+  const formatter = new Intl.DateTimeFormat("en-CA",{timeZone, year: "numeric", month: "2-digit", "day": "2-digit"});
+
+  // Format returns "YYYY-MM-DD" for "en-CA" locale
+  const parts = formatter.formatToParts(now);
+  const year = parts.find(p => p.type === "year")?.value;
+  const month = parts.find(p => p.type === "month")?.value;
+  const day = parts.find(p => p.type === "day")?.value;
+
+  return `${year}-${month}-${day}`;
 };
 export default getTodayDateString;
