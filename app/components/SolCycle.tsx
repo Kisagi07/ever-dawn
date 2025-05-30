@@ -24,6 +24,7 @@ import newEndTime from "@/utils/newEndTime";
 import addSecondsToStar from "@/utils/addSecondsToStar";
 import padTime from "@/utils/padTime";
 import sendNotification from "@/utils/sendNotification";
+import getLocale from "../utilities/getLocale";
 
 const SolCycle = () => {
   const searchParams = useSearchParams();
@@ -88,7 +89,7 @@ const SolCycle = () => {
           const percentage = searchParams.get("percentage-value") as string;
           options.percentage = +percentage;
         } else {
-          let leftOverGoal = (await getTodayRemainingTodayGoal()) as number;
+          let leftOverGoal = (await getTodayRemainingTodayGoal(getLocale())) as number;
           if (typeof leftOverGoal === "number") {
             if (completedSession!.type === "focus") {
               leftOverGoal -= completedSession!.time / 60;
@@ -119,7 +120,7 @@ const SolCycle = () => {
   }, [scheme, searchParams]);
 
   const callUpdateTotalFocus = async (newTotal: number) => {
-    const response = await updateTodayTotalFocus(newTotal);
+    const response = await updateTodayTotalFocus(newTotal, getLocale());
     if (response === "FAIL") {
       toast("Failed in updating today total focus", "red");
     }
@@ -243,9 +244,7 @@ const SolCycle = () => {
       }
     });
 
-    // Get locale for today total focus
-    const locale = navigator.language;
-    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;    
+    const {locale,timeZone} = getLocale()   
 
     getTodayTotalFocus(timeZone, locale).then((response) => {
       if (response === "FAIL") {

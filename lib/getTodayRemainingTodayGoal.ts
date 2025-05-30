@@ -3,10 +3,10 @@
 import getDailyTarget from "@/lib/getDailyTarget";
 import getTodayTotalFocus from "@/lib/getTodayTotalFocus";
 
-const getTodayRemainingTodayGoal = async () => {
+const getTodayRemainingTodayGoal = async ({locale,timeZone}: {locale:string, timeZone:string}) => {
   try {
     const target = await getDailyTarget();
-    let todayTotalFocus = await getTodayTotalFocus();
+    let todayTotalFocus = await getTodayTotalFocus(timeZone, locale);
 
     if (target === 0) {
       return "You don't have daily target set";

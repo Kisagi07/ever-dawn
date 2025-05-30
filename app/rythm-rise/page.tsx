@@ -14,6 +14,7 @@ import getTodayRemainingTodayGoal from "@/lib/getTodayRemainingTodayGoal";
 import clsx from "clsx";
 import calculateRythmScheme from "@/utils/calculateRythmScheme";
 import formatTime from "@/utils/formatTime";
+import getLocale from "../utilities/getLocale";
 
 const Page = () => {
   const [generatedSessions, setGeneratedSessions] = useState<{ focus?: number; break: number; id: string }[]>([]);
@@ -132,7 +133,7 @@ const Page = () => {
   useEffect(() => {
     if (focusTarget === "today goal" && !todayGoal) {
       setTodayGoal("Loading...");
-      getTodayRemainingTodayGoal().then((res) => {
+      getTodayRemainingTodayGoal(getLocale()).then((res) => {
         if (typeof res === "number") {
           setTodayGoal(`${res} Minutes`);
           setFailedTodayGoalFetch(false);
